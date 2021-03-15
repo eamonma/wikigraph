@@ -10,15 +10,15 @@
 \usepackage{csquotes}
 \usepackage[style=apa, backend=biber, sortcites=true, sorting=nty]{biblatex}
 \bibliography{refs.bib}
-\usepackage[style=iso]{datetime2}
 \usepackage{hyperref}
 \hypersetup{hidelinks}
+\usepackage[style=iso]{datetime2}
 
 \linespread{1.33}
 
 \title{Open Secrets: Investigating systemic biases in Wikipedia, the free online encyclopedia}
 \author{Eamon Ma, Hisbaan Noorani, Rachel Xie, Philip Harker}
-\date{\today}
+\date{March 16, 2021}
 
 \usepackage{multicol}
 \setlength{\columnsep}{16pt}
@@ -37,9 +37,9 @@
     
     \section{Problem description and research question}  % this is currently almost exactly 300 words
     
-    As a free online encyclopedia run by volunteer collaborators, edits to Wikipedia articles form the backbone of the website. Without its open nature, Wikipedia would not be what it is today. However, this does not guarantee greatness\textemdash for the same reasons it is a symbol of communal knowledge and free information, Wikipedia is inherently biased. Most notably, it is biased towards the countries that articles are edited most in, and the dominant cultures in those countries. ``[Our] research does show that most editors to Wikipedia come from the United States and Western Europe. And, as of 2020, our survey data indicate that fewer than 1\% of Wikipedia’s editor base in the U.S. identify as Black or African American. Considering these data, we can say with certainty that we are missing important perspectives from the world that Wikipedia strives to serve.'' \parencite{Uzzell}. Along with an abundance of information of interest to Western society, there is a distinct lack of information from and for marginalized groups. 
+    As a free online encyclopedia run by volunteer collaborators, edits to Wikipedia articles form the backbone of the website. Without its open nature, Wikipedia would not be what it is today. However, this does not guarantee greatness --- for the same reasons it is a symbol of communal knowledge and free information, Wikipedia is inherently biased. Most notably, it is biased towards the countries that articles are edited most in, and the dominant cultures in those countries. ``[Our] research does show that most editors to Wikipedia come from the United States and Western Europe. And, as of 2020, our survey data indicate that fewer than 1\% of Wikipedia’s editor base in the U.S. identify as Black or African American. Considering these data, we can say with certainty that we are missing important perspectives from the world that Wikipedia strives to serve.'' \parencite{Uzzell}. Along with an abundance of information of interest to Western society, there is a distinct lack of information from and for marginalized groups.
     
-    The coverage of knowledge is not spread evenly across all the Wikipedia articles. It varies based on what is desired and what is available, and often, the most available information (on English Wikipedia) concerns men from ``developed" countries and their interests. Only 17.82\% of Wikipedia's biographies are about women. This isn't merely an issue of Wikipedia's editors specifically being unreliable, it is an issue of there not being reliable sources in the wider Internet available for editors to feel confident creating articles about topics like women in science \parencite{Erhart}. In this way, we can think of Wikipedia as a representation of our society's general knowledge base. 
+    The coverage of knowledge is not spread evenly across all the Wikipedia articles. It varies based on what is desired and what is available, and often, the most available information (on English Wikipedia) concerns men from ``developed'' countries and their interests. Only 17.82\% of Wikipedia's biographies are about women. This isn't merely an issue of Wikipedia's editors specifically being unreliable, it is an issue of there not being reliable sources in the wider Internet available for editors to feel confident creating articles about topics like women in science \parencite{Erhart}. In this way, we can think of Wikipedia as a representation of our society's general knowledge base.
     
     % that last sentence sounds a little weird
     
@@ -59,7 +59,7 @@
     % \setcounter{subsection}{-1}
     % \subsection{About the dataset}
     The data we will be using will be an offline copy of a list of all of Wikipedia's articles. There are a few reasons for this. \begin{enumerate}
-        \item Wikipedia request that research not be done on live versions of articles as it puts unnecessary strain on their servers\textemdash we would like to respect their wishes.
+        \item Wikipedia request that research not be done on live versions of articles as it puts unnecessary strain on their servers --- we would like to respect their wishes.
         \item Changes to the dataset may occur midway through computation. This would likely lead to errors in graph generation if references to articles are edited while we are trying to compute on them.
         \item Computational time. Working with an offline dataset is much faster than working with an online one. If we were to use the online version, we would have to wait for it to download each article every time that a re-calculation is run, instead of a single time at the beginning and then never again.
     \end{enumerate}
