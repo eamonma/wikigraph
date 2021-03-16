@@ -4,7 +4,7 @@
 
 \usepackage[activate=true,final,tracking=true]{microtype}
 
-\usepackage{libertine}
+\usepackage[tt=false]{libertine}
 \usepackage{libertinust1math, fontspec, amsmath}
 
 \usepackage[english]{babel}
@@ -44,25 +44,19 @@
     Along with an abundance of information of interest to Western society, there is a distinct lack of information from and for marginalized groups.
 
     The coverage of knowledge is not spread evenly across all the Wikipedia articles.
-    It varies based on what is desired and what is available, and often, the most available information (on English Wikipedia) concerns men from ``developed'' countries and their interests.
+    It varies based on what is desired and what is available, and often, the most available information (on English Wikipedia\footnote{For the purposes of this project, only English Wikipedia will be considered -- demographics and articles of interest will vary between languages, so we will focus on only English articles to avoid confusion.}) concerns men from ``developed'' countries and their interests.
     Only 17.82\% of Wikipedia's biographies are about women.
     This isn't merely an issue of Wikipedia's editors specifically being unreliable, it is an issue of there not being reliable sources in the wider Internet available for editors to feel confident creating articles about topics like women in science \parencite{Erhart}.
     In this way, Wikipedia can be thought of as a representation of society's general knowledge base.
 
-    % that last sentence sounds a little weird
-
     Our research question is, \textbf{``How can we use connections / links between Wikipedia articles to determine areas where our collective knowledge is lacking?}
-
-    % add a footnote saying we're talking about English Wikipedia specifically
 
     % more specific examples of areas where there is clear discrepancy between academic knowledge and what's on Wikipedia, and also i guess patterns of stub articles -- is it more frequently female historical figures that have less information on them compared to male historical figures? just as an example
 
-    % we can also do some preliminary testing for ourselves on articles of interest and figure out some specific articles where this kind of things happens (by targeting those articles specifically) - ^HN
+    % we can also do some preliminary testing for ourselves on articles of interest and figure out some specific articles where this kind of things happens (by targeting those articles specifically) - HN
     % if it helps at all, i know there's missing information in the page about the Babylonian astronomical diaries -- u of t's library system has a ton of info on them - RX
 
-    \section{Computational plan}  % currently around 580 words -- we probably need to cut down that dataset section and actually tell them what our dataset is / included a sample (?) from it somehow - RX
-
-    % additional note: it says we need to explicitly state a python library we intend to use
+    \section{Computational plan}
 
     % \setcounter{subsection}{-1}
     % \subsection{About the dataset}
@@ -78,7 +72,7 @@
         % If we were to use the online version, we would have to wait for it to download each article every time that a re-calculation is run, instead of a single time at the beginning and then never again.
         \item There will be significantly less bandwidth used with an offline dataset.
         The download will only need to be performed once, at the very beginning, and not every time the user wishes to recompute the graph.
-        This leads to approximately 18 GB of data savings compressed, and 50 GB of data savings uncompressed.
+        This leads to approximately 18 GB of data savings compressed, and 78 GB of data savings uncompressed.
     \end{enumerate}
     Additionally, there will be reduced computational complexity with the offline dataset as fewer operations will need to be performed.
 
@@ -107,19 +101,74 @@
     This file may be formatted in a manner similar to or matching a JSON or CSV file.
 
     \subsection{Stage 2: Analysis}
-    % what does this sentence mean? this whole paragraph is a little vague but not worth clearing up unless we've got time - RX
     After the graph is created, nodes with characteristics determined to be found in underrepresented articles will be singled out programmatically.
     After this, each article will be analyzed on both an individual and a macroscopic level.
     We will look for trends in the articles that we find to be underrepresented for reasons other than age of article, obscurity of topic (low demand), and other metrics.
     The trends discovered in this analysis will allow us to find more such articles that may not display the same severity of symptoms, and also allow us to look at the state of the internet as a whole.
 
     \subsection{Stage 3: Visualization}
-    After this preliminary analysis is completed, a visualization system will be developed that will allow the user to find underrepresented articles, view them in relation to other articles around them, and visit the actual articles.
-    This will allow the user to discover why these articles are underrepresented.
+    After this preliminary analysis is completed, a visualization system will be developed that will allow the user to find underrepresented articles, view them in relation to other articles around them, and visit the actual articles. The python library \texttt{networkx} will likely be used to create this visualization and in order to interface with \texttt{networkx}, the python library \texttt{pandas} will also be used for its \texttt{dataframe} objects.
+    This will allow the user to discover why these articles are underrepresented in a visual manner, which many people find will likely find easier to understand than a written report.
 
-    % either by themselves, or we can write a blurb for particular articles that stand out to us as being underrepresented for an actual reason. We could also identify these articles by the trends that we find in the analysis section. - ^HN
+    % either by themselves, or we can write a blurb for particular articles that stand out to us as being underrepresented for an actual reason. We could also identify these articles by the trends that we find in the analysis section. - HN
 
     % collect statistics about things like average number of edges for an article; perhaps make some graphs of those stats; could talk about this more in stage 3 - RX
+    % I feel like this part will probably go into analysis instead of visualization as the visualization part is literally just creating a thing so that people can easily look at our results... at least, that's what I envisioned it as - HN
+
+    \section{Datasets}
+
+    All of the data that will be used from this project is open and available at \href{https://dumps.wikimedia.org/}{https://dumps.wikimedia.org/}. \parencite{WikimediaDownloads}
+    The first of the two main sources of data will be the Wikipedia pages, available \href{https://meta.wikimedia.org/wiki/Data_dump_torrents#English_Wikipedia}{here}. \parencite{DataDumpTorrents}
+    The most recent dataset at the time of writing is the one that will be used (2021-01-01) .
+    This dataset is simply every single English Wikipedia page accurate to 2021-01-01, compiled into one XML file. A smaller, sample dataset is available \href{http://itorrents.org/torrent/B23A2BDC351E58E041D79F335A3CF872DEBAE919.torrent}{here}. All of the page datasets must be downloaded via torrent due to their large size, to help reduce server load. Due to the nature of this dataset, it is not possible to provide an example.
+
+    The second main source of data will be analytical data on the uses of Wikipedia pages, such as page view counts. This is available \href{https://dumps.wikimedia.org/other/analytics/}{here}. The following is an example of some of the data found in the dataset:
+
+    \texttt{en.wikipedia 12\_Songs\_(album) desktop 1 J1}
+
+    This can be better represented as a table:
+    \end{multicols}
+
+    \begin{center}
+    \begin{tabular}{|c|c|c|c|c|}
+    \hline
+    subproject.project & Article & Page id & Daily Total & Hourly Counts \\
+    \hline
+    en.wikipedia & 12\_Songs\_(album) & desktop & 1 & J1 \\
+    \hline
+    \end{tabular}
+    \end{center}
+
+    \(\text{ }\)
+
+    \begin{multicols}{2}
+    \subsection*{Explanation of Data Table}
+    \begin{itemize}
+        \item \texttt{subproject.project}
+
+        This is the domain that the article is hosted on.
+
+        \item \texttt{Article}
+
+        This is the title of the article.
+
+        \item \texttt{Page id}
+
+        This distinguishes between the platform of access.
+
+        \item \texttt{Daily Total}
+
+        This is the total number of requests that the page receives for a given day.
+        This is not the same thing as unique visitors.
+
+        \item \texttt{Hourly Counts}
+
+        This is a representation of when the clicks happened in the day. It can be deciphered as follows. The hours of the day go from 0 to 23.
+        In this encoding scheme, each letter represents its direct count in hours.
+        This means that \(A\) represents 0, \(B\) represents 1, \dots, \(W\) represents 22, \(X\) represents 23.
+        The number following the letter is the count of requests in that hour.
+        This means that the extracted data row says that there was 1 request for the page \texttt{12\_Songs\_(album)} at the 9\(^{\text{th}}\) hour of the day on the first of December, 2011 (from the file name, each file represents one day).
+    \end{itemize}
 
     % \underline{Foreseeable issues}
     % \begin{itemize}
