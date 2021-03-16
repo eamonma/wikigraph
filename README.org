@@ -6,7 +6,7 @@ Just a little todolist so that we can work on things at times outside of the tim
 - [-] This is a task that is currently being worked on
 - [X] This is a done task
 
-* TODO
+* To-do list
 ** Project Proposal [1/1]
 - [X] Do it
 ** Dataset processing [0/0]
