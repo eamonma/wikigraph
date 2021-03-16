@@ -13,6 +13,8 @@ Just a little todolist so that we can work on things at times outside of the tim
 ** Visualization [0/0]
 ** Project Report [0/0]
 
+-----
+
 * Group Members
 ** Eamon [1/1]
 - [X] Do it
