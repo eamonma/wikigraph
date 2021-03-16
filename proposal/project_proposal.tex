@@ -1,11 +1,12 @@
 \documentclass[fontsize=12pt]{article}
-\usepackage[utf8]{inputenc}
+% \usepackage[utf8]{inputenc}
 \usepackage[margin=0.75in]{geometry}
 
 \usepackage[activate=true,final,tracking=true]{microtype}
 
 \usepackage{libertine}
 \usepackage{libertinust1math, fontspec, amsmath}
+
 \usepackage[english]{babel}
 \usepackage{csquotes}
 \usepackage[style=apa, backend=biber, sortcites=true, sorting=nty]{biblatex}
@@ -25,73 +26,107 @@
 \begin{document}
 \maketitle
 \begin{multicols}{2}
-    \noindent
-    
     % Some Noteworthy Reads:
     % https://ijoc.org/index.php/ijoc/article/viewFile/777/631
     % https://www.theatlantic.com/technology/archive/2011/05/is-wikipedia-a-world-cultural-repository/239274/
     % https://iccl.inf.tu-dresden.de/web/Wikidata/Maps-06-2015/en
     % https://diff.wikimedia.org/2015/08/07/systemic-bias-wikipedia-vs-publishers/
-    
+
     % very specifically, our topic is about articles on wikipedia that have Less Information than they should -- we'll ignore the issue of people being able to edit whatever they want -- FOCUS ON SYSTEMIC BIASES
-    
+
     \section{Problem description and research question}  % this is currently almost exactly 300 words
-    
-    As a free online encyclopedia run by volunteer collaborators, edits to Wikipedia articles form the backbone of the website. Without its open nature, Wikipedia would not be what it is today. However, this does not guarantee greatness --- for the same reasons it is a symbol of communal knowledge and free information, Wikipedia is inherently biased. Most notably, it is biased towards the countries that articles are edited most in, and the dominant cultures in those countries. ``[Our] research does show that most editors to Wikipedia come from the United States and Western Europe. And, as of 2020, our survey data indicate that fewer than 1\% of Wikipedia’s editor base in the U.S. identify as Black or African American. Considering these data, we can say with certainty that we are missing important perspectives from the world that Wikipedia strives to serve.'' \parencite{Uzzell}. Along with an abundance of information of interest to Western society, there is a distinct lack of information from and for marginalized groups.
-    
-    The coverage of knowledge is not spread evenly across all the Wikipedia articles. It varies based on what is desired and what is available, and often, the most available information (on English Wikipedia) concerns men from ``developed'' countries and their interests. Only 17.82\% of Wikipedia's biographies are about women. This isn't merely an issue of Wikipedia's editors specifically being unreliable, it is an issue of there not being reliable sources in the wider Internet available for editors to feel confident creating articles about topics like women in science \parencite{Erhart}. In this way, we can think of Wikipedia as a representation of our society's general knowledge base.
-    
+
+    As a free online encyclopedia run by volunteer collaborators, edits to Wikipedia articles form the backbone of the website.
+    Without its open nature, Wikipedia would not be what it is today.
+    However, this does not guarantee greatness --- for the same reasons it is a symbol of communal knowledge and free information, Wikipedia is inherently biased.
+    Most notably, it is biased towards the countries that articles are edited most in, and the dominant cultures in those countries.
+    ``[Our] research does show that most editors to Wikipedia come from the United States and Western Europe. And, as of 2020, our survey data indicate that fewer than 1\% of Wikipedia’s editor base in the U.S. identify as Black or African American. Considering these data, we can say with certainty that we are missing important perspectives from the world that Wikipedia strives to serve.'' \parencite{Uzzell}.
+    Along with an abundance of information of interest to Western society, there is a distinct lack of information from and for marginalized groups.
+
+    The coverage of knowledge is not spread evenly across all the Wikipedia articles.
+    It varies based on what is desired and what is available, and often, the most available information (on English Wikipedia) concerns men from ``developed'' countries and their interests.
+    Only 17.82\% of Wikipedia's biographies are about women.
+    This isn't merely an issue of Wikipedia's editors specifically being unreliable, it is an issue of there not being reliable sources in the wider Internet available for editors to feel confident creating articles about topics like women in science \parencite{Erhart}.
+    In this way, Wikipedia can be thought of as a representation of society's general knowledge base.
+
     % that last sentence sounds a little weird
-    
+
     Our research question is, \textbf{``How can we use connections / links between Wikipedia articles to determine areas where our collective knowledge is lacking?}
-    
-    % add a footnote saying we're talking about english wikipedia specifically
-    
+
+    % add a footnote saying we're talking about English Wikipedia specifically
+
     % more specific examples of areas where there is clear discrepancy between academic knowledge and what's on Wikipedia, and also i guess patterns of stub articles -- is it more frequently female historical figures that have less information on them compared to male historical figures? just as an example
-    
+
     % we can also do some preliminary testing for ourselves on articles of interest and figure out some specific articles where this kind of things happens (by targeting those articles specifically) - ^HN
-    % if it helps at all, i know there's missing information in the page about the babylonian astronomical diaries -- u of t's library system has a ton of info on them - RX
-    
+    % if it helps at all, i know there's missing information in the page about the Babylonian astronomical diaries -- u of t's library system has a ton of info on them - RX
+
     \section{Computational plan}  % currently around 580 words -- we probably need to cut down that dataset section and actually tell them what our dataset is / included a sample (?) from it somehow - RX
-    
+
     % additional note: it says we need to explicitly state a python library we intend to use
-    
+
     % \setcounter{subsection}{-1}
     % \subsection{About the dataset}
-    The data we will be using will be an offline copy of a list of all of Wikipedia's articles. There are a few reasons for this. \begin{enumerate}
+    The data to be used is an offline copy of all of Wikipedia's articles.
+    There are a few reasons that this dataset is offline instead of live.
+    \begin{enumerate}
         \item Wikipedia request that research not be done on live versions of articles as it puts unnecessary strain on their servers --- we would like to respect their wishes.
-        \item Changes to the dataset may occur midway through computation. This would likely lead to errors in graph generation if references to articles are edited while we are trying to compute on them.
-        \item Computational time. Working with an offline dataset is much faster than working with an online one. If we were to use the online version, we would have to wait for it to download each article every time that a re-calculation is run, instead of a single time at the beginning and then never again.
+        \item Changes to the dataset may occur midway through computation.
+        This would likely lead to errors in graph generation if references to articles are edited while the computation is taking place.
+        \item Computational time.
+        Working with an offline dataset is much faster than working with an online one.
+        If the online version were to be used, the user would have to wait for the download of each article, every time that a re-calculation is run, instead of a single time at the beginning and then never again.
+        % If we were to use the online version, we would have to wait for it to download each article every time that a re-calculation is run, instead of a single time at the beginning and then never again.
+        \item There will be significantly less bandwidth used with an offline dataset.
+        The download will only need to be performed once, at the very beginning, and not every time the user wishes to recompute the graph.
+        This leads to approximately 18 GB of data savings compressed, and 50 GB of data savings uncompressed.
     \end{enumerate}
-    Additionally, there will be reduced computational complexity with the offline dataset because we will need to perform fewer operations. The fourth reason is bandwidth usage. While it is bandwidth taxing to download an 18 GB database, it is even more bandwidth taxing to re-download this database every single time a regeneration of the graph is required.
-    
-    % For now we will assume that we are computing on EVERY SINGLE ARTICLE; this may cause problems, but we'll address those later
-    
-    Our computational plan consists of three main stages. \textit{Stage 1, Stage 2,} and \textit{Stage 3}.
-    
+    Additionally, there will be reduced computational complexity with the offline dataset as fewer operations will need to be performed.
+
+    Our computational plan consists of three main stages.
+    \textit{Stage 1, Stage 2,} and \textit{Stage 3}.
+    For now, it will be assumed that every single article on English Wikipedia will be graphed, however this may change later on as the scope of the project is shifted due to computational and time constraints.
+
     \subsection{Stage 1: Processing the data}
-    We plan to create a graph of links between Wikipedia articles. These links are the hyperlinks visible on an article (typically in blue text) that link to other articles. External links will be ignored. We also wish to store a little bit more information about each article such as the word count, number of viewers, number of editors, number of edits, etc. This means that a simple \texttt{Graph} and \texttt{\_Node} structure will not suffice. A new \texttt{Graph}, \texttt{\_Node} pair with instance attributes to represent the extra data that is to be collected. The exact data we'll collect is subject to change as the viability of collecting each metric and the use that it will provide are considered. 
-    
-    A challenge arises when we look at where to save such graph. We will create a format that saves this graph as first; a set of nodes in the graph, second; a list of the edges in the graph, and third; a format that will save all other information for each node in the graph. This file may be something like a json or csv file.
-    % i'm assuming this paragraph works grammatically but it's a bit confusingly worded - RX
-    
+    A graph of links between Wikipedia articles will be created.
+    % We plan to create a graph of links between Wikipedia articles.
+    These links are the hyperlinks visible on an article (typically in blue text) that link to other articles.
+    External links will be ignored.
+    A little bit more information about each article such as the word count, number of viewers, number of editors, number of edits, etc. will be stored.
+    % We also wish to store a little bit more information about each article such as the word count, number of viewers, number of editors, number of edits, etc.
+    This means that a simple \texttt{Graph} and \texttt{\_Node} structure will not suffice.
+    A new \texttt{Graph}, \texttt{\_Node} pair with instance attributes to represent the extra data that is to be collected will be created.
+    The exact data to be collect is subject to change as the viability of collecting each metric and the use that it will provide are considered.
+
+    Due to the large size of the dataset, processing the data is a time-consuming endeavour.
+    This means that it should be avoided as much as possible.
+    A possible solution to this issue is to save the graph in plain-text so that a re-computation is not required every time the graph is loaded into the visualization system.
+
+    A challenge arises when considering how to store such a graph.
+    A format will be created that saves this graph in parts.
+    First: as a set of nodes in the graph, second: a list of the edges in the graph, and third: a file that will save all other information for each node in the graph.
+    This file may be formatted in a manner similar to or matching a JSON or CSV file.
+
     \subsection{Stage 2: Analysis}
     % what does this sentence mean? this whole paragraph is a little vague but not worth clearing up unless we've got time - RX
-    After the graph is created, nodes with characteristics determined to be found in underrepresented articles will be singled out pragmatically. After this, each article will be analyzed on both an individual and a macroscopic level. We will look for trends in the articles that we find to be underrepresented for reasons other than age of article, obscurity of topic (low demand), and other metrics. The trends discovered in this analysis will allow us to find more such articles that may not display the same severity of symptoms, and also allow us to look at the state of the internet as a whole.
-    
+    After the graph is created, nodes with characteristics determined to be found in underrepresented articles will be singled out programmatically.
+    After this, each article will be analyzed on both an individual and a macroscopic level.
+    We will look for trends in the articles that we find to be underrepresented for reasons other than age of article, obscurity of topic (low demand), and other metrics.
+    The trends discovered in this analysis will allow us to find more such articles that may not display the same severity of symptoms, and also allow us to look at the state of the internet as a whole.
+
     \subsection{Stage 3: Visualization}
-    After this preliminary analysis is completed, a visualization system will be developed that will allow the user to find underrepresented articles, view them in relation to other articles around them, and visit the actual articles. This will allow the user to discover why these articles are underrepresented.
-    
+    After this preliminary analysis is completed, a visualization system will be developed that will allow the user to find underrepresented articles, view them in relation to other articles around them, and visit the actual articles.
+    This will allow the user to discover why these articles are underrepresented.
+
     % either by themselves, or we can write a blurb for particular articles that stand out to us as being underrepresented for an actual reason. We could also identify these articles by the trends that we find in the analysis section. - ^HN
-    
+
     % collect statistics about things like average number of edges for an article; perhaps make some graphs of those stats; could talk about this more in stage 3 - RX
-    
+
     % \underline{Foreseeable issues}
     % \begin{itemize}
     %     \item VERY LARGE DATASET
     %     \item storing a graph because we don't want to generate that again
     % \end{itemize}
-    % 
+    %
     % \underline{Plan or something}
     % \begin{itemize}
     %     \item Create a graph of connections from one wiki article to another
@@ -106,27 +141,27 @@
     %         \item For fun, compute the shortest length between any given two things with an interface of some sort
     %     \end{itemize}
     % \end{itemize}
-    
+
     % \underline{BRAINSTORMING FOR PROBLEM DOMAIN}
     % \begin{itemize}
-    %     \item problem domain; research: we know for a fact that there are gaps in Wikipedia's knowledge -- we can get both the links between articles and the articles in Wikipedia to find which pages have fewer links (and maybe lower word counts) may indicate gaps in our knowledge; we could examine the articles with fewest connections for patterns 
+    %     \item problem domain; research: we know for a fact that there are gaps in Wikipedia's knowledge -- we can get both the links between articles and the articles in Wikipedia to find which pages have fewer links (and maybe lower word counts) may indicate gaps in our knowledge; we could examine the articles with fewest connections for patterns
     %     \item more specific area to look at: [and also how would we solve this computationally]
     %     \item for funsies can find shortest path between two unrelated objects (could also pivot from initial idea and turn this into a “how to best play the Wikipedia game or whatever it's called”)
     % \end{itemize}
-    % 
+    %
     % \underline{BRAINSTORMING FOR THINGS THAT WE WILL DO}
     % \begin{itemize}
     %     \item consider connections between articles in a certain area of knowledge (north American history, as a completely wild example) to see what most articles are connected to and what places are not as likely to be found just by hopping through Wikipedia links
     %     \item see if our program can find gaps in available knowledge (esp. since we saw on international women’s day Wikipedia itself was talking about a deficit of information on female historical figures -- we know for a fact there's gaps in the available information) based on comparing number of connections between pages as well as word counts of pages  -- maybe we'll even find patterns in what's missing
     % \end{itemize}
-    
+
 \end{multicols}
 
 % References, currently shows all citations in refs.bib (\nocite{*})
 
 \linespread{2}
 \newpage
-\nocite{*}
+% \nocite{*}
 \printbibliography[title={\centering References}]
 
 \end{document}
