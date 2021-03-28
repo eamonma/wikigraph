@@ -1,0 +1,3 @@
+#+TITLE: Read Me
+
+This is where the processed files will go. Depending on the size of them, we will either push them or not. It's likely that the actual data file will be greater than 1GB so we could either split that up into many small files so that we can keep using github storage for them, or we all just place them here manually and I add another thing into the gitignore so it's not pushed.
