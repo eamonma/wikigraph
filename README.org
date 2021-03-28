@@ -1,25 +1,48 @@
 #+TITLE: Bruh
 
-Just a little todolist so that we can work on things at times outside of the times when we meet up. Assign yourself things here and then we can work on our own tasks, and mark them off from the main list once they're done.
+Just a little todo list so that we can work on things at times outside of the times when we meet up. Assign yourself things here and then we can work on our own tasks, and mark them off from the main list once they're done.
 
 - [ ] This is an uncompleted task
-- [-] This is a task that is currently being worked on
-- [X] This is a done task
+- [-] This is a task that is in progress
+- [X] This is a completed task
+
+  -----
 
 * To-do list
 ** Project Proposal [1/1]
 - [X] Do it
-** Dataset processing [0/0]
-** Visualization [0/0]
-** Project Report [0/0]
+** Dataset processing [1/7]
+- [X] Add ~Graph~ and ~_Vertex~ implementations
+- [ ] Figure out which database we're going to use and how to use it (SQL?)
+- [ ] Create a python implementation for reading from the database
+- [ ] Figure out a file format that we will use for storing processes graphs
+- [ ] Create a load_graph() function that will load a graph from that stored format
+- [ ] Get the word count in each page and the respective talk page. Add this into the format above (as well as the ~Graph~ and ~_Vertex~ implementations)
+- [ ] Actually do the processing (Test on a smaller dataset first)
+** Visualization [0/3]
+- [ ] Figure out another library to use (~networkx~ is slow for large graphs)
+- [ ] Write the implementation
+- [ ] Allow for information about the page on hover (maybe using the ~wikipedia~ library with some caching?)
+** Analytics [0/1]
+- [ ] Develop/find and program an algorithm to search for the vertices with the least edges (and other criteria that we look for which will be decided upon later)
+- [ ] Maybe look at pages that we know to be underrepresented and look at the trends in them, then search for those in other pages.
+** Project Report [0/7]
+- [ ] Introduction
+- [ ] Computational Overview (Methods)
+- [ ] Instructions
+- [ ] Analysis
+- [ ] Discussion
+- [ ] Conclusion
+- [ ] References (Just add as we go)
 
 -----
 
 * Group Members
 ** Eamon [1/1]
 - [X] Do it
-** Hisbaan [1/1]
+** Hisbaan [2/2]
 - [X] Do it
+- [X] Add ~Graph~ and ~_Vertex~ implementations
 ** Philip [1/1]
 - [X] Do it
 ** Rachel [1/1]
