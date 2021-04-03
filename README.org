@@ -26,7 +26,7 @@ Just a little todo list so that we can work on things at times outside of the ti
 ** Analytics [0/1]
 - [ ] Develop/find and program an algorithm to search for the vertices with the least edges (and other criteria that we look for which will be decided upon later)
 - [ ] Maybe look at pages that we know to be underrepresented and look at the trends in them, then search for those in other pages.
-** Project Report [0/7]
+** Project Report [0/8]
 - [ ] Introduction
 - [ ] Computational Overview (Methods)
 - [ ] Instructions
@@ -34,6 +34,7 @@ Just a little todo list so that we can work on things at times outside of the ti
 - [ ] Discussion
 - [ ] Conclusion
 - [ ] References (Just add as we go)
+- [ ] Justify changes
 
 -----
 
@@ -47,3 +48,53 @@ Just a little todo list so that we can work on things at times outside of the ti
 - [X] Do it
 ** Rachel [1/1]
 - [X] Do it
+
+-----
+-----
+
+* Notes
+** Creating Graph
+- Initialize all the vertices, then all the edges because it's not organized in an orderly way (like the reviews thing where one dataset could only link to a member of the other)
+** Finding Links
+*** Initial impresssions
+- Everything inside of ~[[]]~ is a link.
+- Anything after a ~|~, we can ignore.
+- Some issues with brackets (e.g. ~kingdom (biology)~ redirects to Biological Kingdom, ~Wikipedia:Style~)
+- don't use wikitextparser library because that's where most of the complexity from the project comes from so we should probably do it ourselves
+- Don't use regex --- it's slow as shit
+*** How to do
+- Look for a double open brace (~[[~)
+- If a page contains ~<redirect title = "Something Here" />~, then we can label it a redirect with an instance attribute when we add the vertex to the graph and then, we will just redirect to the page that it wants to be redirected to when it wants to be
+  + If a page is a redirect, then we don't collect information about it
+** Saving graph
+- Save edges something like
+  #+begin_src python
+dictionary = {
+    vertex1: {edges1},
+    vertex2: {edges2},
+    vertex2: {edges3}
+}
+  #+end_src
+- Save the information about each vertex something like
+  #+begin_src csv
+vertex1,wordcount1,otherthings1
+vertex2,wordcount2,otherthings2
+vertex3,wordcount3,otherthings3
+  #+end_src
+** Metrics
+- Number of edges (links to page, and pages that it links to? Maybe only one)
+- Word count
+- Last edit? -- this might be broken
+- Number of citations
+-
+** Visualization
+- Some notes here
+** Justifying changes
+- Getting rid of the view counts because 3.5 TB of data is too much, and also, it's not really that helpful --- it doesn't really matter for "connection of knowledge."
+- Why we can't do small dataset:
+  well the thing is, if we split it, it wouldn't be an issue
+  I think that 1000 is way too small to do anything meaningfull, because articles will link to other articles right? (those are the edges) That limits our stuff a lot... and we can't sort based on obscurity, because that's exactly what we're trying to show exists right?
+
+  like maybe we go only biographies right? But then some guys is a mathematician... oh no... now he's linking to all the stuff that he invented
+
+  oh we should include that so we can do things like look at paths... oh no... someone was an english literature person. now we include that stuff and pretty soon, we have all of wikipedia
