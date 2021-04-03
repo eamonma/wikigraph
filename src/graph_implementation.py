@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 import csv
-from typing import Any
+from typing import Any, Union
 
 # Make sure you've installed the necessary Python libraries (see assignment handout
 # "Installing new libraries" section)
@@ -28,8 +28,11 @@ class _Vertex:
     """
     item: Any
     neighbours: set[_Vertex]
+    redirect: str
+    word_count: int
+    # Add other metrics here and in the __init__ method
 
-    def __init__(self, item: Any) -> None:
+    def __init__(self, item: Any, word_count: int, redirect: str = "") -> None:
         """Initialize a new vertex with the given item and kind.
 
         This vertex is initialized with no neighbours.
@@ -39,6 +42,8 @@ class _Vertex:
         """
         self.item = item
         self.neighbours = set()
+        self.redirect = redirect
+        self.word_count = word_count
 
     def degree(self) -> int:
         """Return the degree of this vertex."""
