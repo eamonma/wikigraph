@@ -20,14 +20,14 @@ Just a little todo list so that we can work on things at times outside of the ti
 - [ ] Get the word count in each page and the respective talk page. Add this into the format above (as well as the ~Graph~ and ~_Vertex~ implementations)
 - [ ] Actually do the processing (Test on a smaller dataset first)
 ** Visualization [0/3]
-- [ ] Figure out another library to use (~networkx~ is slow for large graphs)
+- [-] Figure out another library to use (~networkx~ is slow for large graphs)
 - [ ] Write the implementation
 - [ ] Allow for information about the page on hover (maybe using the ~wikipedia~ library with some caching?)
 ** Analytics [0/1]
 - [ ] Develop/find and program an algorithm to search for the vertices with the least edges (and other criteria that we look for which will be decided upon later)
 - [ ] Maybe look at pages that we know to be underrepresented and look at the trends in them, then search for those in other pages.
 ** Project Report [0/8]
-- [ ] Introduction
+- [-] Introduction
 - [ ] Computational Overview (Methods)
 - [ ] Instructions
 - [ ] Analysis
@@ -46,6 +46,8 @@ Just a little todo list so that we can work on things at times outside of the ti
 - [X] Add ~Graph~ and ~_Vertex~ implementations
 ** Philip [1/1]
 - [X] Do it
+- [-] Report introduction
+- [-] Scouting new visualization library 
 ** Rachel [1/1]
 - [X] Do it
 
