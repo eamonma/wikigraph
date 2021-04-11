@@ -15,18 +15,19 @@ def collect_links_wikitext(wikitext: str) -> list:
     >>> collect_links_wikitext("[[political philosophy]][[Political movement|movement]][[authority]][[hierarchy]]")
     ['political philosophy', 'Political movement', 'authority', 'hierarchy']
     >>> collect_links_wikitext("[[public transport|public transportation]][[kingdom (biology)|]][[Seattle, Washington|]][[Wikipedia:Manual of Style (headings)|]]")
-    ['public transport', 'kingdom (biology)', 'Seattle, Washington', 'Wikipedia:Manual of Style (headings)']
+    ['public transport', 'kingdom (biology)', 'Seattle, Washington',
+                                   'Wikipedia:Manual of Style (headings)']
     >>> collect_links_wikitext("[[public transport]]ation [[bus]]es, [[taxicab]]s, and [[tram]]s")
     ['public transport', 'bus', 'taxicab', 'tram']
     >>> collect_links_wikitext("[[Wikipedia:Manual of Style#Italics]][[#Links and URLs]][[#Links and URLs|Links and URLs]][[Wikipedia:Manual of Style#Italics|Italics]]")
     ['Wikipedia:Manual of Style', 'Wikipedia:Manual of Style']
     """
     wikilinks = list()
-    # items = re.findall("\[\[[\S\s]*?\]\]", wikitext)
-    items = re.findall("\[\[(.*?)\]\]", wikitext)
+    items = re.findall("\[\[[\S\s]*?\]\]", wikitext)
+    # items = re.findall("\[\[(.*?)\]\]", wikitext)
     # wikilinks = [_parse_wikilink(wikilink) or '' for wikilink in items]
     for wikilink in items:
-        wikilinks += _parse_wikilink(wikilink) or ''
+        wikilinks += _parse_wikilink(wikilink[2:len(wikilink) - 2]) or ''
 
     return wikilinks
 
@@ -37,6 +38,7 @@ def _parse_wikilink(wikilink: str) -> list:
     """
 
     # Link, section on same page
+
     try:
         if wikilink[0] == "#":
             return
@@ -48,6 +50,7 @@ def _parse_wikilink(wikilink: str) -> list:
                 parsed_sublink = _parse_wikilink(wikilink[lsbr_index + 2:])
             else:
                 parsed_sublink = wikilink
+
             return [wikilink if pipe_index == -1 else wikilink[:pipe_index]] \
                 + (parsed_sublink if lsbr_index != -1 and parsed_sublink else [])
 
@@ -73,7 +76,6 @@ def _parse_wikilink(wikilink: str) -> list:
 
 
 # print(_parse_wikilink("Wikipedia:Manual of Style#Italics"))
-
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
