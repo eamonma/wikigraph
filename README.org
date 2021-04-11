@@ -39,7 +39,7 @@ Just a little todo list so that we can work on things at times outside of the ti
 
 * Group Members
 ** Eamon [1/1]
-- [X] Do it
+- [X] Implement wikilink parser
 ** Hisbaan [2/2]
 - [X] Do it
 - [X] Add ~Graph~ and ~_Vertex~ implementations
@@ -47,3 +47,6 @@ Just a little todo list so that we can work on things at times outside of the ti
 - [X] Do it
 ** Rachel [1/1]
 - [X] Do it
+
+** Wikilink parser known issues
+- Does not match multiline [[]]
