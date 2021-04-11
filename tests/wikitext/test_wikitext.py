@@ -9,6 +9,8 @@ wikitext = ""
 
 with open('../../data/raw/hundredk.xml', 'r') as reader:
     wikitext = reader.read()
+
+
 # with open('../tests/wikitext/sample_wikitext.txt', 'r') as reader:
 #     wikitext = reader.read()
 
@@ -50,7 +52,8 @@ def _parse_wikilink(wikilink: str) -> list:
         if wikilink[0] == "#":
             return
 
-        if wikilink[0] == "F" and wikilink[:5] == "File:" or wikilink[0] == "I" and wikilink[:6] == "Image:":
+        if wikilink[0] == "F" and wikilink[:5] == "File:" or wikilink[0] == "I" and wikilink[
+                                                                                    :6] == "Image:":
             pipe_index = wikilink.find("|")
             lsbr_index = wikilink.find("[[")
             if not (lsbr_index == -1 and pipe_index == -1):

@@ -1,4 +1,5 @@
 import re
+import os
 
 
 def extract_information_from_wikitext(wikitext: str) -> dict:
@@ -43,7 +44,8 @@ def _parse_wikilink(wikilink: str) -> list:
         if wikilink[0] == "#":
             return
 
-        if wikilink[0] == "F" and wikilink[:5] == "File:" or wikilink[0] == "I" and wikilink[:6] == "Image:":
+        if wikilink[0] == "F" and wikilink[:5] == "File:" or wikilink[0] == "I" and wikilink[
+                                                                                    :6] == "Image:":
             pipe_index = wikilink.find("|")
             lsbr_index = wikilink.find("[[")
             if not (lsbr_index == -1 and pipe_index == -1):
@@ -52,7 +54,7 @@ def _parse_wikilink(wikilink: str) -> list:
                 parsed_sublink = wikilink
 
             return [wikilink if pipe_index == -1 else wikilink[:pipe_index]] \
-                + (parsed_sublink if lsbr_index != -1 and parsed_sublink else [])
+                   + (parsed_sublink if lsbr_index != -1 and parsed_sublink else [])
 
         # ===Link, renamed...===
 
@@ -77,5 +79,7 @@ def _parse_wikilink(wikilink: str) -> list:
 
 # print(_parse_wikilink("Wikipedia:Manual of Style#Italics"))
 if __name__ == "__main__":
+    os.chdir(__file__[0:len('wikitext.py')])
     import doctest
+
     doctest.testmod()
