@@ -671,7 +671,10 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/python,macos,windows,linux,pycharm+all,vscode,emacs,vim,latex
 # Start of personal gitignore
-data/
+data/*
+*enwiki-20210101-pages-articles-multistream-index.txt
+*enwiki-20210101-pages-articles-multistream.xml
+*.auctex_auto
 pyta_report.html
 .vscode/
 
