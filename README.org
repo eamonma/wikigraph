@@ -88,9 +88,17 @@ vertex3,wordcount3,otherthings3
 - Word count
 - Last edit? -- this might be broken
 - Number of citations
--
 ** Visualization
-- Some notes here
+*** Possible Libraries
+- Pygraphviz requires a C / C++ compiler
+- Zen is allegedly a faster thing than Networkx but its website is nonfunctional
+- graph-tool is faster than Networkx (multiple sources claim this) but requires either installing docker or otherwise doing weird non-Pycharm stuff that our TAs might not be willing to do
+- snap.py allegedly claims to be good for analysing big networks but the tutorial says the visualization functionality should only be used for small graphs --- it uses Graphviz to do this
+- PyVis can directly be installed in PyCharm, allows creation of interactive graphs, may not actually be faster than Networkx though
+
+  from some comments online, "if the graph is too big Pyvis will re-create the graph after altering the data, and for that it has to load it all over again (which could take some time). I think there is no work-around over this particular problem, as it is in the esence of the package"
+  + Just a for whoever wrote this, you don't install something in PyCharm. PyCharm uses the pip package manager to install it. Anything that is pycharm specific is a no-no for us. We don't know what ide our TAs are going to be using so we don't want to do anything that is locked down. PyVis works as it's not pycharm specific but just be weary of that.
+
 ** Justifying changes
 - Getting rid of the view counts because 3.5 TB of data is too much, and also, it's not really that helpful --- it doesn't really matter for "connection of knowledge."
 - Why we can't do small dataset:
