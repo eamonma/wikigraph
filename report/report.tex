@@ -1,0 +1,59 @@
+\documentclass[fontsize=12pt]{article}
+\usepackage[margin=0.75in]{geometry}
+
+\usepackage[english]{babel}
+\usepackage[activate=true,final,tracking=true]{microtype}
+
+\usepackage[tt=false]{libertine}
+\usepackage{libertinust1math, fontspec, amsmath, csquotes, hyperref, multicol, xcolor, minted, mathtools}
+\usepackage[style=iso]{datetime2}
+
+% \usepackage[style=apa, backend=biber, sortcites=true, sorting=nty]{biblatex}
+% \usepackage[backend=biber, style=authoryear, bibstyle=authortitle, natbib=true, maxcitenames=2, maxbibnames=99, isbn=false, url=false, firstinits=true, uniquename=false, uniquelist=false, terseinits]{biblatex}
+% \bibliographystyle{ama}
+% \bibliography{refs.bib}
+% \hypersetup{hidelinks}
+
+% \definecolor{bg}{HTML}{343434}
+\renewcommand\theFancyVerbLine{\small\arabic{FancyVerbLine}}
+\definecolor{bg}{HTML}{EEEEEE}
+\definecolor{white}{HTML}{FFFFFF}
+\definecolor{blue}{HTML}{2481b3}
+\newcommand{\py}[1]{\mintinline[bgcolor=white, baselinestretch=1]{python}{#1}}
+
+\usepackage{mathtools}
+\setminted{style=friendly, bgcolor=bg, linenos, mathescape}
+\hypersetup{
+    colorlinks,
+    citecolor=blue,
+    filecolor=blue,
+    linkcolor=blue,
+    urlcolor=blue
+}
+
+\linespread{1.33}
+
+\title{Open Secrets: Investigating systemic biases in Wikipedia, the free online encyclopedia}
+\author{Eamon Ma, Hisbaan Noorani, Rachel Xie, Philip Harker}
+\date{\today}
+
+\setlength{\columnsep}{16pt}
+\begin{document}
+\maketitle
+\begin{multicols}{2}
+    \section{Introduction}
+    etc.
+    \section{Computational overview}
+    As lazy people, we don't like to do more work than necessary. That is why we were ecstatic to find the Python library \py{wikitextparser} to do work for us---the most important being extracting links from a given article. Unfortunately, this functionality of the library was not written with performance as its highest priority. We can see experimentally that the library takes on average about 30 seconds on a modern computer to parse through an \textsc{xml} file approximately one million lines long. (Note that though the parser is written for parsing wikitext, in contrast to \textsc{xml}, the mere \emph{presence} of markup does not affect the functionality.) Extrapolating, the 1.3 billion line Wikipedia dump would take about \(1300 \cdot 30\) seconds, or under 10 hours.
+    
+    The authors believed they could do better---and do better we did. Diving into the \href{https://github.com/5j9/wikitextparser/blob/master/wikitextparser/_wikilink.py}{code for \py{wikitextparser}}, we see the project relies on regular expressions as a primary method of string manipulation. Unfortunately, this tool falls short for large files. Instead, we decided on a hybrid approach: match all the wikilinks using a regular expression, then conduct further processing on each wikilink with string operations. Immediately, we see a significant improvement: on that same million line file, the string operation implementation takes under 1.3 seconds over a 10 run average. This is more than an order of magnitude faster than the library's implementation---about 20-23 times faster, to be precise. This allows us to reduce the projected computing time from 10 hours to about half an hour---quite the improvement!
+
+\end{multicols}
+
+
+\linespread{2}
+\newpage
+% \nocite{*}
+% \printbibliography[title={\centering References}]
+
+\end{document}
