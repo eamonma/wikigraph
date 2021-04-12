@@ -15,7 +15,7 @@ Just a little todo list so that we can work on things at times outside of the ti
 ** Dataset processing [1/7]
 - [X] Add ~Graph~ and ~_Vertex~ implementations
 - [ ] Figure out which database we're going to use and how to use it (SQL?)
-- [ ] Create a python implementation for reading from the database
++ - [ ] Create a python implementation for reading from the database +
 - [ ] Figure out a file format that we will use for storing processes graphs
 - [ ] Create a load_graph() function that will load a graph from that stored format
 - [ ] Get the word count in each page and the respective talk page. Add this into the format above (as well as the ~Graph~ and ~_Vertex~ implementations)
@@ -29,7 +29,7 @@ Just a little todo list so that we can work on things at times outside of the ti
 - [ ] Maybe look at pages that we know to be underrepresented and look at the trends in them, then search for those in other pages.
 ** Project Report [0/8]
 - [-] Introduction
-- [ ] Computational Overview (Methods)
+- [-] Computational Overview (Methods)
 - [ ] Instructions
 - [ ] Analysis
 - [ ] Discussion
