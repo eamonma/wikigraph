@@ -2,6 +2,7 @@ import re
 import os
 import wikitextparser as wtp
 import timeit
+from datetime import datetime
 
 
 def extract_information_from_wikitext(wikitext: str) -> dict:
@@ -10,6 +11,10 @@ def extract_information_from_wikitext(wikitext: str) -> dict:
     we can write one function that will use one loop cycle to do many things, making the code less
     complex (not asymptotically, but in the actually real running time)
     """
+    if "<redirect" in wikitext:
+        redir_index = wikitext.find("<redirect")
+        pass
+        # todo
     raise NotImplementedError()
 
 
@@ -101,6 +106,23 @@ def _parse_wikilink(wikilink: str) -> list:
         print(wikilink, e)
 
 
+def char_count(wikitext: str) -> int:
+    """Return characters between <text> tags GIVEN <page> ELEMENT
+    """
+    text_start_index = wikitext.find("<text>")
+    text_end_index = wikitext.find("</text>")
+    return len(wikitext[text_start_index + 6:text_end_index])
+
+
+def last_revision(wikitext: str) -> datetime:
+    """Return last revision between <timestamp> tags GIVEN <page> ELEMENT
+    """
+    revision_start_index = wikitext.find("<timestamp>")
+    revision_end_index = wikitext.find("</timestamp>")
+    # minus one to remove Z
+    return datetime.fromisoformat(wikitext[revision_start_index + 11:revision_end_index - 1])
+
+
 if __name__ == "__main__":
     # cd to bruh/src so filepaths work no matter where they are
     os.chdir(__file__[0:-len('wikitext.py')])
@@ -110,15 +132,18 @@ if __name__ == "__main__":
     doctest.testmod()
 
     # Open testing files... options include k.xml, ninepointthreek.xml, hundredk.xml, million.xml
-    with open('../data/raw/reduced/hundredk.xml', 'r') as reader:
+    with open('../data/raw/reduced/animation.xml', 'r') as reader:
         wikitext = reader.read()
 
-    # # Code for comparing the time taken between wikitextparser and our solution
-    # print(timeit.timeit('wtp.parse(wikitext)', number=1, globals=globals()))
-    # print(timeit.timeit('collect_links_wikitext(wikitext)', number=1, globals=globals()))
+    from experiments import versus_wtp
 
-    # # Code for comparing the output of wikitextparser and our solution
-    # f = open("../tests/wikitext/wtp.txt", "w")
-    # g = open("../tests/wikitext/custom.txt", "w")
-    # f.write("\n".join([l.title for l in wtp.parse(wikitext).wikilinks if l.title]))
-    # g.write("\n".join([item for item in collect_links_wikitext(wikitext) if item]))
+    print(last_revision(wikitext))
+
+    # Code for comparing the time taken between wikitextparser and our solution
+    # versus_wtp.time_versus("collect_links_wikitext(wikitext)",
+    #                        "wtp.parse(wikitext)",
+    #                        {"times": 2}, globals())
+
+    # Code for comparing the output of wikitextparser and our solution
+    # versus_wtp.diff_lists([item for item in collect_links_wikitext(wikitext) if item],
+    #                       [l.title for l in wtp.parse(wikitext).wikilinks if l.title])
