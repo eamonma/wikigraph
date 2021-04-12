@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Graph and _Vertex implementation for use in creating the Wikipedia graph"""
-
 from __future__ import annotations
+import os
 import csv
-from typing import Any, Union
+from typing import Any
 
 # Make sure you've installed the necessary Python libraries (see assignment handout
 # "Installing new libraries" section)
@@ -143,6 +143,15 @@ class Graph:
         else:
             return set(self._vertices.keys())
 
+    def get_vertex_degree(self, item: Any) -> int:
+        """Return the degree of the vertex associated with this item.
+
+        Raise a ValueError if item does not appear as a vertex in this graph."""
+        if item in self._vertices:
+            return len(self._vertices[item].neighbours)
+        else:
+            raise ValueError
+
     def to_networkx(self, max_vertices: int = 5000) -> nx.Graph:
         """Convert this graph into a networkx Graph.
 
@@ -233,6 +242,8 @@ if __name__ == '__main__':
     # NOTE: Don't have these on all the time
     # import python_ta.contracts
     # python_ta.contracts.check_all_contracts()
+
+    os.chdir(__file__[0:-len('graph_implementation.py')])
 
     # NOTE: These others are fine
     import doctest
