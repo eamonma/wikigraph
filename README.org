@@ -7,6 +7,7 @@ Just a little todo list so that we can work on things at times outside of the ti
 - [X] This is a completed task
 
   -----
+  -----
 
 * To-do list
 ** Project Proposal [1/1]
@@ -37,6 +38,7 @@ Just a little todo list so that we can work on things at times outside of the ti
 - [ ] Justify changes
 
 -----
+-----
 
 * Group Members
 ** Eamon [1/1]
@@ -55,22 +57,77 @@ Just a little todo list so that we can work on things at times outside of the ti
 -----
 
 * Broad strokes overview of computational plan
-1. Split the dataset up into multiple datasets. We ensure that the division does not split up one page into two datasets.
-2. Parse each part of this dataset in parallel. For each page, we extract...
-   a. All of the edges that it possesses.
-   b. The word count of the article.
-   c. The last edit (if this is accurate).
-   d. anything else that we can pull from the xml.
-3. Merge the restuls from the parallel operations.
-4. Use this extracted information to create a graph object -- a loader method like the one that we did for graphs and weighted graphs in A3.
-5. Find some articles that we know are lacking in content/research.
-6. Find common traits of these articles. Also include custom characteristics that we are sure are present in lacking articles.
-7. Use some sort of graph searching algorithm to find all the other articles that match these characteristics.
-8. Visualize this graph:
-   a. Use some sort of clustering algorithm. Can we do anything with this? Will a node that is in a cluster be, on average, more fleshed out?
-   b. Show the graphs that are not well represented as another colour.
-   c. Maybe show statistics like the title, word count, degree, etc on hover.
-9. We're done!
+- Split the dataset up into multiple datasets. We ensure that the division does not split up one page into two datasets.
+- Parse each part of this dataset in parallel. For each page, we extract...
+  + All of the edges that it possesses.
+  + The word count of the article.
+  + The last edit (if this is accurate).
+  + anything else that we can pull from the xml.
+- Merge the restuls from the parallel operations.
+- Use this extracted information to create a graph object -- a loader method like the one that we did for graphs and weighted graphs in A3.
+- Find some articles that we know are lacking in content/research.
+- Find common traits of these articles. Also include custom characteristics that we are sure are present in lacking articles.
+- Use some sort of graph searching algorithm to find all the other articles that match these characteristics.
+- Visualize this graph:
+  + Use some sort of clustering algorithm. Can we do anything with this? Will a node that is in a cluster be, on average, more fleshed out?
+  + Show the graphs that are not well represented as another colour.
+  + Maybe show statistics like the title, word count, degree, etc on hover.
+- We're done!
+
+-----
+-----
+
+* File Structure: IMPORTANT
+
+Each of these subpoints will be a directory in the repo. Try to ensure that your code is as cleaned up as possible when you are pushing and that you are not pushing unnecessary files or you don't have files in the wrong location.
+
+The root directory will contain things like this README, requirements.txt, etc. Try not to clutter it up too much with things that would do better placed in a subdirecotry.
+
+** data
+
+This directory is meant for data storage. This will not be pushed, but the structure will remain. We don't push this because it's bad practice to push file that are obtainable outside of the project (especially if these files are large)
+
+*** raw
+
+Raw files that have not yet been processed. This inlucdes the wikidump.
+
+**** reduced
+
+Smaller sections of the wikidump that we can run trials on.
+
+*** processed
+
+This is where output will go. We may push some of these or find some other way to share these as the processing time will be insane.
+
+** proposal
+
+Directory for the project proposal. Only push tex, pdf, and bib files.
+
+** report
+
+Directory for the project report. Only push tex, pdf, and bib files.
+
+** src
+
+This is where all the python files will go. There should generally be no subfolders here but there are some exceptions. This is to allow for proper PATH management (how python modules are imported, etc).
+
+All python files here will need to include the following
+
+#+begin_src python
+"""Module docstring"""
+import os  # Toward the top of the file
+
+if __name__ == '__main__':
+    os.chdir(__file__[0:-len('name of file')])
+#+end_src
+
+This code ensures that the code runs relative to the src directory, no matter where you execute it from. This smooths out some differences between vscode and pycharm/terminal python. I know that some of our TAs use vscode so this is NECESSARY.
+
+We should also make sure to document our code very well.
+
+** test
+
+This directory is where we will put unit tests but it is also okay to have random testing for other things. Try to make sure that your code is as clean as possible when you're pushing things.
 
 -----
 -----
