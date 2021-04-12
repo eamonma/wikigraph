@@ -59,7 +59,7 @@ def time_versus(us: str = "print('hello, world')",
     }
 
 
-def diff_lists(us: list, them: list, print: bool = True, delete: bool = True) -> list:
+def diff_lists(us: list, them: list, to_print: bool = True, delete: bool = True) -> list:
     """Compare two potentially large lists by writing them to disk and diff'ing them
     """
     f = open("us.txt", "w")
@@ -71,7 +71,7 @@ def diff_lists(us: list, them: list, print: bool = True, delete: bool = True) ->
     diffs = os.popen("diff us.txt them.txt").read()
     diffs_list = diffs.split("\n")
 
-    if io:
+    if to_print:
         diffs_joined_list = []
         for i in range(len(diffs_list) - 1):
             if not i % 2:
@@ -99,7 +99,7 @@ def diff_lists(us: list, them: list, print: bool = True, delete: bool = True) ->
 if __name__ == "__main__":
     # load files
     from wikitext import collect_links_wikitext
-    with open('../data/raw/reduced/hundredk.xml', 'r') as reader:
+    with open('data/raw/reduced/hundredk.xml', 'r') as reader:
         wikitext = reader.read()
 
     # demo time_versus
@@ -110,4 +110,4 @@ if __name__ == "__main__":
 
     # demo diff_lists
     diff_lists([item for item in collect_links_wikitext(wikitext) if item],
-               [l.title for l in wtp.parse(wikitext).wikilinks if l.title], io=False)
+               [l.title for l in wtp.parse(wikitext).wikilinks if l.title])

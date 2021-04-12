@@ -41,8 +41,13 @@ Just a little todo list so that we can work on things at times outside of the ti
 -----
 
 * Group Members
-** Eamon [1/1]
+** Eamon [x/x]
 - [X] Implement wikilink parser
+- [X] Implement wikitext count char
+- [X] Implement wikitext get last revision
+- [X] Implement experiment to test practical running time
+- [X] Implement experiment to test practical difference between collect_links_wikitext and wtp
+- [X] Implement tests for above
 ** Hisbaan [2/2]
 - [X] Do it
 - [X] Add ~Graph~ and ~_Vertex~ implementations
