@@ -10,7 +10,11 @@ def time_versus(us: str = "print('hello, world')",
                 ) -> dict:
     """Pit one of our functions against one of their functions, time-wise.
     Default options: 
-    | prints results 
+    | prints results if os.path.exists("us.txt"):
+        os.remove("us.txt")
+
+    if os.path.exists("them.txt"):
+        os.remove("them.txt")
     | run each 1 time 
     | show multiplier 
     | show orders of magnitude
