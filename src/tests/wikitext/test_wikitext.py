@@ -86,6 +86,8 @@ def _parse_wikilink(wikilink: str) -> list:
         print(wikilink, e)
 
 
+# time_versus()
+
 # def test_collect_links_wikitext():
 #     assert [link.title for link in wtp.parse(
 #         wikitext).wikilinks] == collect_links_wikitext(wikitext)
