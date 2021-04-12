@@ -77,7 +77,7 @@ class Graph:
         """Initialize an empty graph (no vertices or edges)."""
         self._vertices = {}
 
-    def add_vertex(self, item: Any) -> None:
+    def add_vertex(self, item: Any, word_count: int) -> None:
         """Add a vertex with the given item and kind to this graph.
 
         The new vertex is not adjacent to any other vertices.
@@ -87,7 +87,7 @@ class Graph:
             - kind in {'user', 'book'}
         """
         if item not in self._vertices:
-            self._vertices[item] = _Vertex(item)
+            self._vertices[item] = _Vertex(item, word_count)
 
     def add_edge(self, item1: Any, item2: Any) -> None:
         """Add an edge between the two vertices with the given items in this graph.

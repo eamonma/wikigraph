@@ -15,18 +15,36 @@ def find_fewest_edges_threshold(g: Graph, threshold: int, cap: Optional[int] = N
     Preconditions:
         - 0 <= threshold
         - cap is None or 0 <= cap <= len(self._vertices)
+
+    >>> g = Graph()
+    >>> g.add_vertex('first', word_count=20)  # placeholder word_count
+    >>> g.add_vertex('second', word_count=20)
+    >>> g.add_vertex('third', word_count=20)
+    >>> g.add_vertex('fourth', word_count=20)
+    >>> g.add_vertex('fifth', word_count=20)
+    >>> g.add_edge('first', 'second')
+    >>> g.add_edge('first', 'third')
+    >>> g.add_edge('first', 'fourth')
+    >>> g.add_edge('first', 'fifth')
+    >>> g.add_edge('third', 'fifth')
+    >>> g.add_edge('fourth', 'fifth')
+    >>> s = find_fewest_edges_threshold(g, 2)
+    >>> s == {'second', 'third', 'fourth'}
+    True
     """
     # the vertices, sorted by degree; contains vertex *items*
     lst = list(g.get_all_vertices())
-    sorted_lst = _sort_vertices_by_degree(lst)
+    sorted_lst = _sort_vertices_by_degree(g, lst)
     few_edges = set()
 
     for i in range(len(sorted_lst)):
-        if cap <= 0:
+        if cap is not None and cap <= 0:
             return few_edges
 
         item = sorted_lst[i]
-        if g.get_vertex_degree(item) <= threshold and cap >= 0:
+        if g.get_vertex_degree(item) <= threshold and cap is None:
+            few_edges.add(item)
+        elif g.get_vertex_degree(item) <= threshold and cap > 0:
             few_edges.add(item)
             cap = cap - 1
 
@@ -38,15 +56,29 @@ def find_fewest_edges_no_threshold(g: Graph, cap: int) -> list:
     fewer than cap items with a degree below the threshold, fewer than cap items will
     be returned.
 
+    Preconditions:
+        - 0 <= cap <= len(g.get_all_vertices())
+
     >>> g = Graph()
-    >>> g.add_vertex('first')
-    >>> g.add_vertex('second')
-    >>> g.add_vertex('third')
-    >>> g.add_vertex('fourth')
+    >>> g.add_vertex('first', word_count=20) # placeholder for word_count
+    >>> g.add_vertex('second', word_count=20)
+    >>> g.add_vertex('third', word_count=20)
+    >>> g.add_vertex('fourth', word_count=20)
+    >>> g.add_vertex('fifth', word_count=20)
+    >>> g.add_edge('first', 'second')
+    >>> g.add_edge('first', 'third')
+    >>> g.add_edge('first', 'fourth')
+    >>> g.add_edge('first', 'fifth')
+    >>> g.add_edge('third', 'fifth')
+    >>> g.add_edge('fourth', 'fifth')
+    >>> lst = find_fewest_edges_no_threshold(g, 3)
+    >>> lst
+    >>> lst == ['second', 'third', 'fourth'] or lst == ['second', 'fourth', 'third']
+    True
     """
     # the vertices, sorted by degree; contains vertex *items*
     lst = list(g.get_all_vertices())
-    sorted_few = _cap_smallest_degrees(lst, cap)
+    sorted_few = _cap_smallest_degrees(g, lst, cap)
     return sorted_few
 
 
@@ -61,32 +93,28 @@ def _cap_smallest_degrees(g: Graph, lst: list, cap: int) -> list:
         return lst.copy()
     else:
         pivot = g.get_vertex_degree(lst[0])
-        smaller, bigger = _partition_by_degree(lst[1:], pivot)
-
-        if smaller == [] or bigger == []:
-            if cap == 1:
-                return smaller
-            if cap == 2:
-                return smaller + [pivot]
-            else:
-                return smaller + [pivot] + bigger
+        smaller, bigger = _partition_by_degree(g, lst[1:], pivot)
 
         if len(lst) == cap:
             # if length of list is cap, just return the sorted list
-            smaller_sorted = _cap_smallest_degrees(smaller, len(smaller))
-            bigger_sorted = _cap_smallest_degrees(bigger, len(bigger))
+            smaller_sorted = _cap_smallest_degrees(g, smaller, len(smaller))
+            bigger_sorted = _cap_smallest_degrees(g, bigger, len(bigger))
 
-            return smaller_sorted + [pivot] + bigger_sorted
+            return smaller_sorted + [lst[0]] + bigger_sorted
+
+        elif len(smaller) == cap - 1:
+            smaller_sorted = _sort_vertices_by_degree(g, smaller)
+            return smaller_sorted + [lst[0]]
 
         elif len(smaller) < cap:
             # must recurse on both smaller and bigger
-            smaller_sorted = _cap_smallest_degrees(smaller, len(smaller))
-            bigger_sorted = _cap_smallest_degrees(bigger, cap - len(smaller) - 1)
+            smaller_sorted = _cap_smallest_degrees(g, smaller, len(smaller))
+            bigger_sorted = _cap_smallest_degrees(g, bigger, cap - len(smaller) - 1)
 
-            return smaller_sorted + [pivot] + bigger_sorted
+            return smaller_sorted + [lst[0]] + bigger_sorted
 
         else:  # if len(smaller) > cap
-            return _cap_smallest_degrees(smaller, cap)
+            return _cap_smallest_degrees(g, smaller, cap)
 
 
 def _sort_vertices_by_degree(g: Graph, lst: list) -> list:
