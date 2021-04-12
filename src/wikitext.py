@@ -37,7 +37,8 @@ def collect_links_wikitext(wikitext: str) -> list:
     True
     """
     wikilinks = list()
-    items = re.findall("\[\[[\S\s]*?\]\]", wikitext)  # NOTE: Ignore style suggestions here.
+    pattern = re.compile("\[\[[\S\s]*?\]\]")
+    items = pattern.findall(wikitext)  # NOTE: Ignore style suggestions here.
     # items = re.findall("\[\[(.*?)\]\]", wikitext)
     # wikilinks = [_parse_wikilink(wikilink) or '' for wikilink in items]
     for wikilink in items:
