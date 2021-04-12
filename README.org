@@ -188,4 +188,4 @@ vertex3,wordcount3,otherthings3
   oh we should include that so we can do things like look at paths... oh no... someone was an english literature person. now we include that stuff and pretty soon, we have all of wikipedia
 
 ** Wikilink parser known issues
-- Does not match multiline [[]]
+- None at the moment
