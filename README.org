@@ -167,6 +167,7 @@ vertex1,wordcount1,otherthings1
 vertex2,wordcount2,otherthings2
 vertex3,wordcount3,otherthings3
   #+end_src
+- Save all the information in ram first, then write to file after all the processing is done. This will be significantly faster
 ** Metrics
 - Number of edges (links to page, and pages that it links to? Maybe only one)
 - Word count
