@@ -54,6 +54,27 @@ Just a little todo list so that we can work on things at times outside of the ti
 -----
 -----
 
+* Broad strokes overview of computational plan
+1. Split the dataset up into multiple datasets. We ensure that the division does not split up one page into two datasets.
+2. Parse each part of this dataset in parallel. For each page, we extract...
+   a. All of the edges that it possesses.
+   b. The word count of the article.
+   c. The last edit (if this is accurate).
+   d. anything else that we can pull from the xml.
+3. Merge the restuls from the parallel operations.
+4. Use this extracted information to create a graph object -- a loader method like the one that we did for graphs and weighted graphs in A3.
+5. Find some articles that we know are lacking in content/research.
+6. Find common traits of these articles. Also include custom characteristics that we are sure are present in lacking articles.
+7. Use some sort of graph searching algorithm to find all the other articles that match these characteristics.
+8. Visualize this graph:
+   a. Use some sort of clustering algorithm. Can we do anything with this? Will a node that is in a cluster be, on average, more fleshed out?
+   b. Show the graphs that are not well represented as another colour.
+   c. Maybe show statistics like the title, word count, degree, etc on hover.
+9. We're done!
+
+-----
+-----
+
 * Notes
 ** Creating Graph
 - Initialize all the vertices, then all the edges because it's not organized in an orderly way (like the reviews thing where one dataset could only link to a member of the other)
