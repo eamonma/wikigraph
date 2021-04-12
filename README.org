@@ -25,7 +25,7 @@ Just a little todo list so that we can work on things at times outside of the ti
 - [ ] Write the implementation
 - [ ] Allow for information about the page on hover (maybe using the ~wikipedia~ library with some caching?)
 ** Analytics [0/1]
-- [ ] Develop/find and program an algorithm to search for the vertices with the least edges (and other criteria that we look for which will be decided upon later)
+- [-] Develop/find and program an algorithm to search for the vertices with the least edges (and other criteria that we look for which will be decided upon later)
 - [ ] Maybe look at pages that we know to be underrepresented and look at the trends in them, then search for those in other pages.
 ** Project Report [0/8]
 - [-] Introduction
@@ -55,8 +55,9 @@ Just a little todo list so that we can work on things at times outside of the ti
 - [X] Do it
 - [-] Report introduction
 - [-] Scouting new visualization library 
-** Rachel [1/1]
-- [X] Do it
+** Rachel [1/?]
+- [X] Develop/find and program algorithm(s) to search for the vertices with the least edges
+- [-] Consider other criteria for analysing the graph
 
 -----
 -----
