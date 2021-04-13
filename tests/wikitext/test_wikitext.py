@@ -1,13 +1,17 @@
+import os
+
+os.chdir(__file__[0:-len('tests/wikitext/test_wikitext.py')])
+os.chdir('src')
+
 import timeit
 import wikitextparser as wtp
-import os
 import pprint
 import sys
 import re
 
 from wikitext import collect_links_wikitext
 
-# 
+
 with open('data/raw/reduced/hundredk.xml', 'r') as reader:
     wikitext = reader.read()
 
