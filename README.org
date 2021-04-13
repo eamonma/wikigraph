@@ -163,16 +163,17 @@ dictionary = {
   #+end_src
 - Save the information about each vertex something like
   #+begin_src csv
-vertex1,wordcount1,otherthings1
-vertex2,wordcount2,otherthings2
-vertex3,wordcount3,otherthings3
+vertex1,redirects_to,charcount1,otherthings1
+vertex2,redirects_to,charcount2,otherthings2
+vertex3,redirects_to,charcount3,otherthings3
   #+end_src
 - Save all the information in ram first, then write to file after all the processing is done. This will be significantly faster
+- This redirects_to will be an empty column if it is not a redirect and it will contain the name of the vertex that it redirects to if it redirects to a vertex. In the second case (it is a redirect) the other columns will be empty or 0 or whatever
 ** Metrics
 - Number of edges (links to page, and pages that it links to? Maybe only one)
-- Word count
-- Last edit? -- this might be broken
-- Number of citations
+- Char count
+- Delta between the first of january 2021 and the timestamp (last edit)
+- Number of citations (count ~{{cite~)
 ** Visualization
 *** Possible Libraries
 - Pygraphviz requires a C / C++ compiler
