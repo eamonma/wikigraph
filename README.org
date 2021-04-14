@@ -33,8 +33,8 @@
 - [-] Figure out another library to use (~networkx~ is slow for large graphs)
 - [ ] Write the implementation
 - [ ] Allow for information about the page on hover (maybe using the ~wikipedia~ library with some caching?)
-** Analytics [0/1]
-- [-] Develop/find and program an algorithm to search for the vertices with the least edges (and other criteria that we look for which will be decided upon later)
+** Analytics [1/?]
+- [X] Develop/find and program an algorithm to search for the vertices with the least edges (and other criteria that we look for which will be decided upon later)
 - [ ] Maybe look at pages that we know to be underrepresented and look at the trends in them, then search for those in other pages.
 ** Project Report [0/8]
 - [-] Introduction
@@ -66,7 +66,8 @@
 - [-] Scouting new visualization library 
 ** Rachel [1/?]
 - [X] Develop/find and program algorithm(s) to search for the vertices with the least edges
-- [-] Consider other criteria for analysing the graph
+- [X] Implement function for getting vertices with the smallest word counts
+- [-] Implement function(s) for looking at time since last revision?
 
 -----
 -----
@@ -206,3 +207,23 @@ vertex3,redirects_to,charcount3,otherthings3
 
 ** Wikilink parser known issues
 - None at the moment
+
+** Known Short(ish) Wikipedia Articles
+- https://en.wikipedia.org/wiki/Small_article_monitor - 1124 chars, ~ 5 links, explicitly marked as a stub
+- https://en.wikipedia.org/wiki/Dermatology - about 10,000 chars, lots of headings, but fairly short, shows a message about being over focused on Western culture, so apparently Wikipedia is aware of this is a possible shortcoming, I’m not counting all of those links but there are at least 30, probably the absolute uppermost limit of what I’d consider small (and even then. debatable)
+  + related, actually short: https://en.wikipedia.org/wiki/History_of_dermatology - 1093 characters, 7 links
+- https://en.wikipedia.org/wiki/Babylonian_astronomical_diaries - 2077 characters, about 11 links
+- women in science with lacking articles:
+  + https://en.wikipedia.org/wiki/Mary_the_Jewess - 5124 chars, actually not that short
+  + interestingly, there are two guys from around same time and place and there’s actually less on them: 
+  + https://en.wikipedia.org/wiki/Pseudo-Democritus - 766 characters, 5 links (maybe 6?)
+  + https://en.wikipedia.org/wiki/Stephanus_of_Alexandria - 3736 characters, 24 links
+  + https://en.wikipedia.org/wiki/Cleopatra_the_Alchemist - 4046 characters, about 25 links
+  + https://en.wikipedia.org/wiki/Aglaonice - 4042 characters, about 29 links
+  + https://en.wikipedia.org/wiki/Master_Geng - 357 characters, 9 links
+  + https://en.wikipedia.org/wiki/Golden_Orchid_Society - 746 characters, 3 links
+- NOTE: I did this by copying the body of the article and pasting it into a google doc to check the character count — these values are approximate and may not have been calculated the same way we’re doing it
+- there do exist wikipedia pages with degree of zero, but it’s noteworthy that these are mostly new pages—we didn’t account for this in our original thinking about “disconnected knowledge”—could mention that in the report
+  + https://en.wikipedia.org/wiki/Category:All_dead-end_pages - these are not accurate, but they are all small articles
+  + “Yes there are pages without links, but usually only temporarily. Lots of new articles start without links and sometimes it can take a while before Wikipedia editors add links to them.” from https://www.quora.com/Are-there-any-Wikipedia-pages-without-links
+
