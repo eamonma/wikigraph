@@ -55,7 +55,7 @@
 - [X] Implement wikitext count char
 - [X] Implement wikitext get last revision
 - [X] Implement experiment to test practical running time
-- [X] Implement experiment to test practical difference between collect_links_wikitext and wtp
+- [X] Implement experiment to test practical difference between collect_links and wtp
 - [X] Implement tests for above
 ** Hisbaan [2/2]
 - [X] Do it
@@ -123,7 +123,7 @@ Directory for the project proposal. Only push tex, pdf, and bib files.
 
 Directory for the project report. Only push tex, pdf, and bib files.
 
-** src
+** wikigraph
 
 This is where all the python files will go. There should generally be no subfolders here but there are some exceptions. This is to allow for proper PATH management (how python modules are imported, etc).
 
