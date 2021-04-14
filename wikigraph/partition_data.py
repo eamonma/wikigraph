@@ -1,5 +1,50 @@
-#!/usr/bin/env python3
-"""Create an index of all the opening page tags (<page>) in the xml dataset"""
+"""Create an index of all the opening page tags (<page>) in the xml dataset
+
+Specifications:
+ - FILE_LINE_COUNT:
+    This is the line count of the file that is being used. For enwiki (the full dataset),
+    this variable will be 121820507. For million.xml it will be 1000000, for hundredk.xml
+    it will be 98727.
+ - create_index('path/to/enwiki.xml'):
+    This function returns a list of integers of all the opening page tags in the database.
+ - write_index(list[int], 'path/to/new-index.txt'):
+    This functoin writes a list of integers to a file.
+ - read_index('path/to/index.txt'):
+    This function reads in an index save file and returns them as a list of integers.
+ - round_to_list(number, list[int]):
+    This function rounds a number to the nearest number that is lower than it in the list.
+ - get_partition_points_num(number_of_partitions, list[int]):
+    This function returns a list of partition points based on the number of partitions requested
+ - get_partition_points_size(size_of_partition, list[int]):
+    This function returns a list of partition points based on the maximum size of partition
+    requested
+ - partition('path/to/enwiki.xml', partition_points, 'path/to/output')
+    This function outputs partitions based on all the information it reieves
+
+Example of use:
+In this example, we will create 100 partitions of enwiki-20210101-pages-articles-multistream.xml.
+We will assume that we are currently in the wikigraph directory. Modify paths as needed.
+
+>>> index = create_index('../data/raw/enwiki-20210101-pages-articles-multistream.xml')
+# This will print a progress bar and save the information to the index variable
+
+>>> write_index(index, '../data/processed/wiki-index.txt')
+# This line is optional, but it is recommended as regenerating the index takes a lot o time
+
+>>> read_index('../data/processed/wiki-index.txt')
+# This line is only needed if you did not create the index. If you have an index file generated,
+# then use this, if you do not then create a new index
+
+>>> partition_points = get_partition_points_num(100, index)
+# This will generate a list of partition points. If you want maximum size of each partition instead
+# of line count, then you can use the gat_partition_points_size(100000, index) instead to get a
+# maximum file size of 100,000 lines.
+
+>>> partition('../data/raw/enwiki-20210101-pages-articles-multistream.xml', partition_points,
+...           '../data/processed/partitioned/enwiki-20210101-pages-articles-multistream')
+# This will generate the files enwiki-20210101-pages-articles-multistream-0XXX.xml, where XXX is
+# the partition number, in the directory data/processed/partitioned/
+"""
 import os
 import fileinput
 from alive_progress import alive_bar
@@ -7,9 +52,10 @@ from alive_progress import alive_bar
 # FILE_LINE_COUNT = 1218205075
 FILE_LINE_COUNT = 98727
 
+
 def create_index(filename: str) -> list[int]:
     """Find the line number of every <page> in the file, and return it in a list"""
-    #keeps a track of number of lines in the file
+    # Keeps a track of number of lines in the file
     count = 1
     line_numbers = []
 
@@ -70,52 +116,6 @@ def round_to_list(number: int, index: list[int]) -> int:
     return -1
 
 
-def get_partition_points_num_a(num_partitions: int, index: list[int]) -> list[int]:
-    """Return the line numbers where the dataset will be partitioned at.
-    The length of this list will be =num_partitions="""
-    # Get the approximate size of each partition
-    approx_partition_size = FILE_LINE_COUNT // num_partitions
-    selected_partition_points = []
-
-    print("Generating Partition Points...")
-    with alive_bar(num_partitions) as progressbar:
-        for i in range(num_partitions):
-            # Add a partition close to (just under) the approximate location
-            if i == 0:
-                selected_partition_points.append(round_to_list(approx_partition_size, index))
-            else:
-                selected_partition_points.append(
-                    round_to_list(approx_partition_size + selected_partition_points[-1], index))
-
-            progressbar()
-
-    # Add the last partition point
-    selected_partition_points[len(selected_partition_points) - 1] = FILE_LINE_COUNT + 1
-
-    return selected_partition_points
-
-
-def get_partition_points_num_b(num_partitions: int, index: list[int]) -> list[int]:
-    """Return the line numbers where the dataset will be partitioned at.
-    The length of this list will be =num_partitions="""
-    # Get the approximate size of each partition
-    approx_partition_size = FILE_LINE_COUNT // num_partitions
-    selected_partition_points = []
-
-    print("Generating Partition Points...")
-    with alive_bar(num_partitions) as progressbar:
-        for i in range(num_partitions):
-            # Add a partition close to (just under) the approximate location
-            selected_partition_points.append(round_to_list((i + 1) * approx_partition_size, index))
-
-            progressbar()
-
-    # Add the last partition point
-    selected_partition_points[len(selected_partition_points) - 1] = FILE_LINE_COUNT + 1
-
-    return selected_partition_points
-
-
 def get_partition_points_num(num_partitions: int, index: list[int]) -> list[int]:
     """Return the line numbers where the dataset will be partitioned at.
     The length of this list will be =num_partitions="""
@@ -127,16 +127,7 @@ def get_partition_points_num(num_partitions: int, index: list[int]) -> list[int]
     with alive_bar(num_partitions) as progressbar:
         for i in range(num_partitions):
             # Add a partition close to (just under) the approximate location
-
-            # NOTE: less consistent but less outliers
-            # selected_partition_points.append(round_to_list((i + 1) * approx_partition_size, index))
-
-            # NOTE: very consistent except for the last one, which is bigger
-            if i == 0:
-                selected_partition_points.append(round_to_list(approx_partition_size, index))
-            else:
-                selected_partition_points.append(
-                    round_to_list(approx_partition_size + selected_partition_points[-1], index))
+            selected_partition_points.append(round_to_list((i + 1) * approx_partition_size, index))
 
             progressbar()
 
@@ -194,7 +185,7 @@ def partition(filename: str, partition_points: list[int], output: str) -> None:
     with alive_bar(FILE_LINE_COUNT + 1) as progressbar:
         for line in fileinput.input([filename]):
             if count in partition_points:
-                outfile = open(output + "-%04d"%n+ 'b.xml', 'w')
+                outfile = open(output + "-%04d" % n + 'b.xml', 'w')
                 outfile.write(''.join(current_partition))
                 outfile.close()
 
