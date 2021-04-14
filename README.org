@@ -1,10 +1,19 @@
 #+TITLE: Bruh
 
-Just a little todo list so that we can work on things at times outside of the times when we meet up. Assign yourself things here and then we can work on our own tasks, and mark them off from the main list once they're done.
+# Just a little todo list so that we can work on things at times outside of the times when we meet up. Assign yourself things here and then we can work on our own tasks, and mark them off from the main list once they're done.
 
-- [ ] This is an uncompleted task
-- [-] This is a task that is in progress
-- [X] This is a completed task
+# - [ ] This is an uncompleted task
+# - [-] This is a task that is in progress
+# - [X] This is a completed task
+
+** Dev instructions (from project root)
+1. Create a venv: ~python -m venv venv~ and enter the venv:
+  + ~source venv/bin/activate~ on Unix
+  + ~venv\Scripts\activate.bat~ on Windows
+2. Install requirements: ~pip install -r requirements.txt~
+3. Install local package: ~pip install -e .~
+4. Place data files in respective locations in data/
+5. Run tests: ~pytest -v~
 
   -----
   -----
@@ -15,7 +24,7 @@ Just a little todo list so that we can work on things at times outside of the ti
 ** Dataset processing [1/7]
 - [X] Add ~Graph~ and ~_Vertex~ implementations
 - [ ] Figure out which database we're going to use and how to use it (SQL?)
-+ - [ ] Create a python implementation for reading from the database +
+- + [ ] Create a python implementation for reading from the database +
 - [ ] Figure out a file format that we will use for storing processes graphs
 - [ ] Create a load_graph() function that will load a graph from that stored format
 - [ ] Get the word count in each page and the respective talk page. Add this into the format above (as well as the ~Graph~ and ~_Vertex~ implementations)

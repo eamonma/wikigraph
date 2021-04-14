@@ -1,8 +1,8 @@
 import setuptools
 
 setuptools.setup(
-    name='Bruh',
-    version='1.0.0',
+    name='wikigraph',
+    version='0.0.1',
     description='Wikipedia, graphed',
     author='Eamon Ma, Hisbaan Noorani, Rachel Xie, Philip Harker',
     packages=setuptools.find_packages(),

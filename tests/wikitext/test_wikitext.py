@@ -1,21 +1,18 @@
 import os
-
-os.chdir(__file__[0:-len('tests/wikitext/test_wikitext.py')])
-os.chdir('src')
-
 import timeit
 import wikitextparser as wtp
 import pprint
 import sys
 import re
+import pytest
 
-from wikitext import collect_links_wikitext
+from wikigraph import wikitext
 
-
+print(os.getcwd())
 with open('data/raw/reduced/hundredk.xml', 'r') as reader:
-    wikitext = reader.read()
+    hundredk_wikitext = reader.read()
 
-collected_links = collect_links_wikitext(wikitext)
+collected_links = wikitext.collect_links_wikitext(hundredk_wikitext)
 
 def test_collect_links_wikitext():
     """
@@ -33,7 +30,7 @@ def test_collect_links_wikitext():
         ]
 
 
-    assert all([link in collected_links for link in links])
+    assert all(link in collected_links for link in links)
 
 def test_not_collect_links_wikitext():
     """
@@ -47,4 +44,8 @@ def test_not_collect_links_wikitext():
         "Michelle Obama"
         ]
 
-    assert all([link not in collected_links for link in links])
+    assert all(link not in collected_links for link in links)
+
+
+if __name__ == '__main__':
+    pytest.main([__file__, '-v'])
