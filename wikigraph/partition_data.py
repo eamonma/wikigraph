@@ -70,6 +70,52 @@ def round_to_list(number: int, index: list[int]) -> int:
     return -1
 
 
+def get_partition_points_num_a(num_partitions: int, index: list[int]) -> list[int]:
+    """Return the line numbers where the dataset will be partitioned at.
+    The length of this list will be =num_partitions="""
+    # Get the approximate size of each partition
+    approx_partition_size = FILE_LINE_COUNT // num_partitions
+    selected_partition_points = []
+
+    print("Generating Partition Points...")
+    with alive_bar(num_partitions) as progressbar:
+        for i in range(num_partitions):
+            # Add a partition close to (just under) the approximate location
+            if i == 0:
+                selected_partition_points.append(round_to_list(approx_partition_size, index))
+            else:
+                selected_partition_points.append(
+                    round_to_list(approx_partition_size + selected_partition_points[-1], index))
+
+            progressbar()
+
+    # Add the last partition point
+    selected_partition_points[len(selected_partition_points) - 1] = FILE_LINE_COUNT + 1
+
+    return selected_partition_points
+
+
+def get_partition_points_num_b(num_partitions: int, index: list[int]) -> list[int]:
+    """Return the line numbers where the dataset will be partitioned at.
+    The length of this list will be =num_partitions="""
+    # Get the approximate size of each partition
+    approx_partition_size = FILE_LINE_COUNT // num_partitions
+    selected_partition_points = []
+
+    print("Generating Partition Points...")
+    with alive_bar(num_partitions) as progressbar:
+        for i in range(num_partitions):
+            # Add a partition close to (just under) the approximate location
+            selected_partition_points.append(round_to_list((i + 1) * approx_partition_size, index))
+
+            progressbar()
+
+    # Add the last partition point
+    selected_partition_points[len(selected_partition_points) - 1] = FILE_LINE_COUNT + 1
+
+    return selected_partition_points
+
+
 def get_partition_points_num(num_partitions: int, index: list[int]) -> list[int]:
     """Return the line numbers where the dataset will be partitioned at.
     The length of this list will be =num_partitions="""

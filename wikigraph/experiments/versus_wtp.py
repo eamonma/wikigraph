@@ -6,17 +6,16 @@ import os
 def time_versus(us: str = "print('hello, world')",
                 them: str = "[i*i for i in range(10000)]",
                 options: dict = dict(),
-                globalz = None
-                ) -> dict:
+                globalz = None) -> dict:
     """Pit one of our functions against one of their functions, time-wise.
-    Default options: 
+    Default options:
     | prints results if os.path.exists("us.txt"):
         os.remove("us.txt")
 
     if os.path.exists("them.txt"):
         os.remove("them.txt")
-    | run each 1 time 
-    | show multiplier 
+    | run each 1 time
+    | show multiplier
     | show orders of magnitude
     | do not show difference
     """
@@ -68,7 +67,6 @@ def time_versus(us: str = "print('hello, world')",
 def write_to_file(content: str, filename: str = "tmp.txt") -> None:
     file = open(filename, "w")
     file.write(content)
-    
 
 
 def diff_lists(us: list, them: list, to_print: bool = True, delete: bool = True) -> list:
