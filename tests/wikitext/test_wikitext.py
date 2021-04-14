@@ -6,13 +6,13 @@ import sys
 import re
 import pytest
 
-from wikigraph.wikitext import collect_links_wikitext
+from wikigraph import wikitext
 
 print(os.getcwd())
 with open('data/raw/reduced/hundredk.xml', 'r') as reader:
-    wikitext = reader.read()
+    hundredk_wikitext = reader.read()
 
-collected_links = collect_links_wikitext(wikitext)
+collected_links = wikitext.collect_links_wikitext(hundredk_wikitext)
 
 def test_collect_links_wikitext():
     """
