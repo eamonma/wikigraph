@@ -9,10 +9,11 @@
 ** Dev instructions (from project root)
 1. Create a venv: ~python -m venv venv~ and enter the venv:
   + ~source venv/bin/activate~ on Unix
-  + ~venv\Scripts\activate.bat~
+  + ~venv\Scripts\activate.bat~ on Windows
 2. Install requirements: ~pip install -r requirements.txt~
 3. Install local package: ~pip install -e .~
-4. Run tests: ~pytest -v~
+4. Place data files in respective locations in /data/
+5. Run tests: ~pytest -v~
 
   -----
   -----
