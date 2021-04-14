@@ -2,17 +2,21 @@
 """Create an index of all the opening page tags (<page>) in the xml dataset"""
 import os
 import fileinput
+from alive_progress import alive_bar
 
 def index_file(filename: str) -> list[int]:
     """Find the line number of every <page> in the file, and return it in a list"""
     #keeps a track of number of lines in the file
     count = 1
     line_numbers = []
-    for lines in fileinput.input([filename]):
-        if '<page>' in lines:
-            line_numbers.append(count)
 
-        count += 1
+    # with alive_bar(1000000) as progressbar:  # For million dataset
+    with alive_bar(1218205075) as progressbar:  # For full dataset
+        for lines in fileinput.input([filename]):
+            if '<page>' in lines:
+                line_numbers.append(count)
+            count += 1
+            progressbar()
 
     return line_numbers
 
