@@ -31,6 +31,6 @@ def write_index(line_numbers: list[int], filename: str) -> None:
 if __name__ == '__main__':
     os.chdir(__file__[0:-len('create_index.py')])
     write_index(index_file('../data/raw/enwiki-20210101-pages-articles-multistream.xml'),
-                '../data/processed/wiki_index.txt')
+                '../data/processed/wiki-index.txt')
     # write_index(index_file('../data/raw/reduced/million.xml'),
-    #            '../data/processed/wiki_index.txt')
+    #            '../data/processed/wiki-index.txt')
