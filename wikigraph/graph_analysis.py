@@ -49,7 +49,7 @@ def _n_smallest_chars(g: Graph, lst: list, n: int) -> list:
         smaller, bigger = _partition_char_count(g, lst[1:], pivot)
 
         if len(lst) == n:
-            # if length of list is cap, just return the sorted list
+            # if length of list is n, just return the sorted list
             smaller_sorted = _n_smallest_chars(g, smaller, len(smaller))
             bigger_sorted = _n_smallest_chars(g, bigger, len(bigger))
 
@@ -66,7 +66,7 @@ def _n_smallest_chars(g: Graph, lst: list, n: int) -> list:
 
             return smaller_sorted + [lst[0]] + bigger_sorted
 
-        else:  # if len(smaller) > cap
+        else:  # if len(smaller) > n
             return _n_smallest_chars(g, smaller, n)
 
 
@@ -203,7 +203,7 @@ def _n_smallest_degrees(g: Graph, lst: list, n: int) -> list:
         smaller, bigger = _partition_by_degree(g, lst[1:], pivot)
 
         if len(lst) == n:
-            # if length of list is cap, just return the sorted list
+            # if length of list is n, just return the sorted list
             smaller_sorted = _n_smallest_degrees(g, smaller, len(smaller))
             bigger_sorted = _n_smallest_degrees(g, bigger, len(bigger))
 
@@ -220,7 +220,7 @@ def _n_smallest_degrees(g: Graph, lst: list, n: int) -> list:
 
             return smaller_sorted + [lst[0]] + bigger_sorted
 
-        else:  # if len(smaller) > cap
+        else:  # if len(smaller) > n
             return _n_smallest_degrees(g, smaller, n)
 
 
