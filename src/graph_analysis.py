@@ -6,7 +6,7 @@ from typing import Any, Optional
 from graph_implementation import Graph
 
 
-def find_fewest_edges_threshold(g: Graph, threshold: int, cap: Optional[int] = None) -> set:
+def find_fewest_edges_threshold(g: Graph, threshold: int, n: Optional[int] = None) -> set:
     """Return the set of vertices with fewer than or equal to threshold edges.
     If cap is given, return only the first cap items below the threshold. If there are
     fewer than cap items with a degree below the threshold, fewer than cap items will
@@ -31,6 +31,9 @@ def find_fewest_edges_threshold(g: Graph, threshold: int, cap: Optional[int] = N
     >>> s = find_fewest_edges_threshold(g, 2)
     >>> s == {'second', 'third', 'fourth'}
     True
+    >>> s1 = find_fewest_edges_threshold(g, 1, 3)
+    >>> s1 == {'second'}
+    True
     """
     # the vertices, sorted by degree; contains vertex *items*
     lst = list(g.get_all_vertices())
@@ -38,23 +41,22 @@ def find_fewest_edges_threshold(g: Graph, threshold: int, cap: Optional[int] = N
     few_edges = set()
 
     for i in range(len(sorted_lst)):
-        if cap is not None and cap <= 0:
+        if n is not None and n <= 0:
             return few_edges
 
         item = sorted_lst[i]
-        if g.get_vertex_degree(item) <= threshold and cap is None:
+        if g.get_vertex_degree(item) <= threshold and n is None:
             few_edges.add(item)
-        elif g.get_vertex_degree(item) <= threshold and cap > 0:
-            few_edges.add(item)
-            cap = cap - 1
+        elif n is not None and g.get_vertex_degree(item) <= threshold:
+            if n > 0:
+                few_edges.add(item)
+                n = n - 1
 
     return few_edges
 
 
-def find_fewest_edges_no_threshold(g: Graph, cap: int) -> list:
-    """Return a list of cap vertices with the smallest degrees in the graph. If there are
-    fewer than cap items with a degree below the threshold, fewer than cap items will
-    be returned.
+def find_fewest_edges_no_threshold(g: Graph, n: int) -> list:
+    """Return a list of n vertices with the smallest degrees in the graph.
 
     Preconditions:
         - 0 <= cap <= len(g.get_all_vertices())
@@ -72,18 +74,17 @@ def find_fewest_edges_no_threshold(g: Graph, cap: int) -> list:
     >>> g.add_edge('third', 'fifth')
     >>> g.add_edge('fourth', 'fifth')
     >>> lst = find_fewest_edges_no_threshold(g, 3)
-    >>> lst
     >>> lst == ['second', 'third', 'fourth'] or lst == ['second', 'fourth', 'third']
     True
     """
     # the vertices, sorted by degree; contains vertex *items*
     lst = list(g.get_all_vertices())
-    sorted_few = _cap_smallest_degrees(g, lst, cap)
+    sorted_few = _n_smallest_degrees(g, lst, n)
     return sorted_few
 
 
-def _cap_smallest_degrees(g: Graph, lst: list, cap: int) -> list:
-    """Return sorted list of first cap items with the smallest degrees.
+def _n_smallest_degrees(g: Graph, lst: list, n: int) -> list:
+    """Return sorted list of first n items with the smallest degrees.
 
     Preconditions:
         - 0 <= cap <= len(lst)
@@ -95,26 +96,26 @@ def _cap_smallest_degrees(g: Graph, lst: list, cap: int) -> list:
         pivot = g.get_vertex_degree(lst[0])
         smaller, bigger = _partition_by_degree(g, lst[1:], pivot)
 
-        if len(lst) == cap:
+        if len(lst) == n:
             # if length of list is cap, just return the sorted list
-            smaller_sorted = _cap_smallest_degrees(g, smaller, len(smaller))
-            bigger_sorted = _cap_smallest_degrees(g, bigger, len(bigger))
+            smaller_sorted = _n_smallest_degrees(g, smaller, len(smaller))
+            bigger_sorted = _n_smallest_degrees(g, bigger, len(bigger))
 
             return smaller_sorted + [lst[0]] + bigger_sorted
 
-        elif len(smaller) == cap - 1:
+        elif len(smaller) == n - 1:
             smaller_sorted = _sort_vertices_by_degree(g, smaller)
             return smaller_sorted + [lst[0]]
 
-        elif len(smaller) < cap:
+        elif len(smaller) < n:
             # must recurse on both smaller and bigger
-            smaller_sorted = _cap_smallest_degrees(g, smaller, len(smaller))
-            bigger_sorted = _cap_smallest_degrees(g, bigger, cap - len(smaller) - 1)
+            smaller_sorted = _n_smallest_degrees(g, smaller, len(smaller))
+            bigger_sorted = _n_smallest_degrees(g, bigger, n - len(smaller) - 1)
 
             return smaller_sorted + [lst[0]] + bigger_sorted
 
         else:  # if len(smaller) > cap
-            return _cap_smallest_degrees(g, smaller, cap)
+            return _n_smallest_degrees(g, smaller, n)
 
 
 def _sort_vertices_by_degree(g: Graph, lst: list) -> list:
