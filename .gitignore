@@ -675,6 +675,7 @@ data/*
 *enwiki-20210101-pages-articles-multistream-index.txt
 *enwiki-20210101-pages-articles-multistream.xml
 *.auctex_auto
+*wiki_index.py
 pyta_report.html
 .vscode/
 

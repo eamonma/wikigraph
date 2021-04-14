@@ -74,10 +74,18 @@ def create_index(filename: str) -> list[int]:
     return line_numbers
 
 
-def write_index(line_numbers: list[int], filename: str) -> None:
+def write_index(index: list[int], filename: str) -> None:
     """Write a list of integers to a file, one integer per line"""
     f = open(filename, 'w')
-    f.write('\n'.join([str(i) for i in line_numbers]))
+    f.write('\n'.join([str(i) for i in index]))
+    f.close()
+
+
+def write_index_pvn(index: list[int], filename: str) -> None:
+    f = open(filename, 'w')
+    f.write('index = [')
+    f.write(',\n'.join([str(i) for i in index]))
+    f.write(']')
     f.close()
 
 
@@ -209,17 +217,18 @@ if __name__ == '__main__':
 
     # Partition smaller datasets
     ind = read_index('../data/processed/wiki-index.txt')
+    write_index_pvn(ind, 'wiki_index.py')
 
     # Partition based on number of partitions
-    p_points = get_partition_points_num(10, ind)
+    # p_points = get_partition_points_num(10, ind)
 
     # # Partition based on size of partitions
     # p_points = get_partition_points_size(10000, ind)
 
     # partition(10, '../data/raw/reduced/million.xml', p_points,
     #           '../data/processed/partitioned/million')
-    partition('../data/raw/reduced/hundredk.xml', p_points,
-              '../data/processed/partitioned/hundredk')
+    # partition('../data/raw/reduced/hundredk.xml', p_points,
+    #          '../data/processed/partitioned/hundredk')
 
     # # Partition full dataset
     # ind = read_index('../data/processed/wiki-index.txt')
