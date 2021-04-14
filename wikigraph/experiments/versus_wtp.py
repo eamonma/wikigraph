@@ -37,26 +37,38 @@ def time_versus(us: str = "print('hello, world')",
     g_time = timeit.timeit(
         them, number=times, globals=globalz if globalz else globals())
 
+    laps = g_time / f_time
+    diff = abs(g_time - f_time)
+    oom = round(abs(math.log(g_time / f_time, 10)))
+
     if not options["no_io"]:
         print(f"\n'{us}' versus '{them}', {times} time{'s' if times > 1 else ''}:")
         print(f"Our implementation:          {f_time:3.5f} seconds")
         print(f"Their implementation:        {g_time:3.5f} seconds")
 
         if options["show_laps"]:
-            print(f"Times faster:                {g_time / f_time:.5f}")
+            print(f"Times faster:                {laps:.5f}")
         if options["show_diff"]:
             print(
-                f"Diffrence:                   {abs(g_time - f_time):.5f}")
+                f"Diffrence:                   {diff:.5f}")
         if options["order_of_magnitude"]:
-            oom = round(abs(math.log(g_time / f_time, 10)))
             print(
                 f"{'Orders of magnitude:' if oom > 1 else 'Order of magnitude: '}         {oom}")
         print("")
 
     return {
-        us: f_time,
-        them: g_time
+        "us": f_time,
+        "them": g_time,
+        "laps": laps,
+        "diff": diff,
+        "order_magnitude": oom
     }
+
+
+def write_to_file(content: str, filename: str = "tmp.txt") -> None:
+    file = open(filename, "w")
+    file.write(content)
+    
 
 
 def diff_lists(us: list, them: list, to_print: bool = True, delete: bool = True) -> list:
@@ -104,10 +116,10 @@ if __name__ == "__main__":
 
     # demo time_versus
     import wikitextparser as wtp
-    time_versus("wikitext.collect_links_wikitext(sample_wikitext)",
+    time_versus("wikitext.collect_links(sample_wikitext)",
                 "wtp.parse(sample_wikitext)",
                 {"times": 1})
 
     # demo diff_lists
-    diff_lists([item for item in wikitext.collect_links_wikitext(sample_wikitext) if item],
+    diff_lists([item for item in wikitext.collect_links(sample_wikitext) if item],
                [l.title for l in wtp.parse(sample_wikitext).wikilinks if l.title])

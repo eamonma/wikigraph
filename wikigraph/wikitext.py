@@ -18,25 +18,25 @@ def extract_information_from_wikitext(wikitext: str) -> dict:
     raise NotImplementedError()
 
 
-def collect_links_wikitext(wikitext: str) -> list:
+def collect_links(wikitext: str) -> list:
     """Collect links given wikitext
     Find tags containing "[[]]" and parse within it.
     Maintains case.
 
-    >>> collect_links_wikitext(\
+    >>> collect_links(\
     "[[political philosophy]][[Political movement|movement]][[authority]][[hierarchy]]") == \
     ['political philosophy', 'Political movement', 'authority', 'hierarchy']
     True
-    >>> collect_links_wikitext(\
+    >>> collect_links(\
     "[[public transport|public transportation]][[kingdom (biology)|]][[Seattle, Washington|]]" + \
     "[[Wikipedia:Manual of Style (headings)|]]") == \
     ['public transport', 'kingdom (biology)',\
      'Seattle, Washington', 'Wikipedia:Manual of Style (headings)']
     True
-    >>> collect_links_wikitext("[[public transport]]ation [[bus]]es, [[taxicab]]s, and [[tram]]s") \
+    >>> collect_links("[[public transport]]ation [[bus]]es, [[taxicab]]s, and [[tram]]s") \
     == ['public transport', 'bus', 'taxicab', 'tram']
     True
-    >>> collect_links_wikitext("[[Wikipedia:Manual of Style#Italics]][[#Links and URLs]]" + \
+    >>> collect_links("[[Wikipedia:Manual of Style#Italics]][[#Links and URLs]]" + \
     "[[#Links and URLs|Links and URLs]][[Wikipedia:Manual of Style#Italics|Italics]]") == \
     ['Wikipedia:Manual of Style', 'Wikipedia:Manual of Style']
     True
@@ -45,14 +45,14 @@ def collect_links_wikitext(wikitext: str) -> list:
     pattern = re.compile("\[\[[\S\s]*?\]\]")
     items = pattern.findall(wikitext)  # NOTE: Ignore style suggestions here.
     # items = re.findall("\[\[(.*?)\]\]", wikitext)
-    # wikilinks = [_parse_wikilink(wikilink) or '' for wikilink in items]
+    # wikilinks = [parse_wikilink(wikilink) or '' for wikilink in items]
     for wikilink in items:
-        wikilinks += _parse_wikilink(wikilink[2:len(wikilink) - 2]) or ''
+        wikilinks += parse_wikilink(wikilink[2:len(wikilink) - 2]) or ''
 
     return wikilinks
 
 
-def _parse_wikilink(wikilink: str) -> list:
+def parse_wikilink(wikilink: str) -> list:
     """Return the linked article.
 
     Return None if links to section within page
@@ -74,12 +74,12 @@ def _parse_wikilink(wikilink: str) -> list:
                 # TODO: Decide whether this needs to be fixed -- it works properly when called on by
                 #  runner method large method so I don't think so
                 # Maybe something is wrong -- ]] not being removed form this example:
-                # _parse_wikilink('File:An écorché figure (life-size), lying prone on a table" +\
+                # parse_wikilink('File:An écorché figure (life-size), lying prone on a table" +\
                 # " Wellcome L0020561.jpg|thumb|A dissected body, lying prone on a table, by " +\
                 # "[[Charles Landseer]]')
                 # This works for some reason, but only when you run it on everything?
                 # Not individually
-                parsed_sublink = _parse_wikilink(wikilink[lsbr_index + 2:])
+                parsed_sublink = parse_wikilink(wikilink[lsbr_index + 2:])
             else:
                 parsed_sublink = wikilink
 
@@ -106,44 +106,52 @@ def _parse_wikilink(wikilink: str) -> list:
         print(wikilink, e)
 
 
+text_regex = re.compile("<text.*>")
+
+
 def char_count(wikitext: str) -> int:
     """Return characters between <text> tags GIVEN <page> ELEMENT
     """
-    text_start_index = wikitext.find("<text>")
-    text_end_index = wikitext.find("</text>")
-    return len(wikitext[text_start_index + 6:text_end_index])
+    text_start_tag_end_index = text_regex.search(wikitext).end()
+    # ending tag is always 84 chars away from </page>| here
+    return len(wikitext) - 84 - text_start_tag_end_index
 
+def extract_content(wikitext: str) -> int:
+    """Return content between <text> tags GIVEN <page> ELEMENT
+    """
+    text_start_tag_end_index = text_regex.search(wikitext).end()
+    return wikitext[text_start_tag_end_index:len(wikitext) - 84]
 
 def last_revision(wikitext: str) -> datetime:
     """Return last revision between <timestamp> tags GIVEN <page> ELEMENT
     """
-    revision_start_index = wikitext.find("<timestamp>")
-    revision_end_index = wikitext.find("</timestamp>")
+    revision_start_index = wikitext.find("<timestamp")
+    revision_end_index = wikitext.find("</timestamp", revision_start_index)
     # minus one to remove Z
     return datetime.fromisoformat(wikitext[revision_start_index + 11:revision_end_index - 1])
 
 
 if __name__ == "__main__":
     # cd to bruh/src so filepaths work no matter where they are
-    os.chdir(__file__[0:-len('wikitext.py')])
+    # os.chdir(__file__[0:-len('wikitext.py')])
 
     # Do doctest
     import doctest
     doctest.testmod()
 
     # Open testing files... options include k.xml, ninepointthreek.xml, hundredk.xml, million.xml
-    with open('../data/raw/reduced/animation.xml', 'r') as reader:
+    with open('data/raw/reduced/animation.xml', 'r') as reader:
         wikitext = reader.read()
 
     from experiments import versus_wtp
 
-    print(last_revision(wikitext))
+    # print((last_revision(wikitext) - datetime(2021, 1, 1)).seconds)
 
     # Code for comparing the time taken between wikitextparser and our solution
-    # versus_wtp.time_versus("collect_links_wikitext(wikitext)",
+    # versus_wtp.time_versus("collect_links(wikitext)",
     #                        "wtp.parse(wikitext)",
     #                        {"times": 2}, globals())
 
     # Code for comparing the output of wikitextparser and our solution
-    # versus_wtp.diff_lists([item for item in collect_links_wikitext(wikitext) if item],
+    # versus_wtp.diff_lists([item for item in collect_links(wikitext) if item],
     #                       [l.title for l in wtp.parse(wikitext).wikilinks if l.title])
