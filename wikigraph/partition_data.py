@@ -65,7 +65,7 @@ def create_index(filename: str) -> list[int]:
         # Read file line by line for ram management
         for lines in fileinput.input([filename]):
             # If the line is an opening page tag, record it
-            if '<page>' in lines:
+            if '<page' in lines:
                 line_numbers.append(count)
             count += 1
             # Advance the progress bar
@@ -78,14 +78,6 @@ def write_index(index: list[int], filename: str) -> None:
     """Write a list of integers to a file, one integer per line"""
     f = open(filename, 'w')
     f.write('\n'.join([str(i) for i in index]))
-    f.close()
-
-
-def write_index_pvn(index: list[int], filename: str) -> None:
-    f = open(filename, 'w')
-    f.write('index = [')
-    f.write(',\n'.join([str(i) for i in index]))
-    f.write(']')
     f.close()
 
 
