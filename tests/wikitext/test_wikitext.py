@@ -30,7 +30,7 @@ def test_collect_links_wikitext():
         ]
 
 
-    assert all([link in collected_links for link in links])
+    assert all(link in collected_links for link in links)
 
 def test_not_collect_links_wikitext():
     """
@@ -44,7 +44,7 @@ def test_not_collect_links_wikitext():
         "Michelle Obama"
         ]
 
-    assert all([link not in collected_links for link in links])
+    assert all(link not in collected_links for link in links)
 
 
 if __name__ == '__main__':

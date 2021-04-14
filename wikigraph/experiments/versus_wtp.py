@@ -98,16 +98,16 @@ def diff_lists(us: list, them: list, to_print: bool = True, delete: bool = True)
 
 if __name__ == "__main__":
     # load files
-    from wikitext import collect_links_wikitext
+    from wikigraph import wikitext
     with open('data/raw/reduced/hundredk.xml', 'r') as reader:
-        wikitext = reader.read()
+        sample_wikitext = reader.read()
 
     # demo time_versus
     import wikitextparser as wtp
-    time_versus("collect_links_wikitext(wikitext)",
-                "wtp.parse(wikitext)",
+    time_versus("wikitext.collect_links_wikitext(sample_wikitext)",
+                "wtp.parse(sample_wikitext)",
                 {"times": 1})
 
     # demo diff_lists
-    diff_lists([item for item in collect_links_wikitext(wikitext) if item],
-               [l.title for l in wtp.parse(wikitext).wikilinks if l.title])
+    diff_lists([item for item in wikitext.collect_links_wikitext(sample_wikitext) if item],
+               [l.title for l in wtp.parse(sample_wikitext).wikilinks if l.title])
