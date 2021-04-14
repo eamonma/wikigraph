@@ -6,15 +6,121 @@ from typing import Any, Optional
 from graph_implementation import Graph
 
 
+#################################################################################
+# Character Count Analysis
+#################################################################################
+def find_smallest_char_counts(g: Graph, n: int) -> list:
+    """Return a list of n vertices whose associated articles have the smallest character
+    counts.
+
+    Preconditions:
+        - 0 <= n <= len(g.get_all_vertices())
+
+    >>> g = Graph()
+    >>> g.add_vertex('first', 100)
+    >>> g.add_vertex('second', 100)
+    >>> g.add_vertex('third', 30)
+    >>> g.add_vertex('fourth', 400)
+    >>> g.add_vertex('fifth', 500)
+    >>> g.add_edge('first', 'second')
+    >>> g.add_edge('first', 'third')
+    >>> g.add_edge('fourth', 'fifth')
+    >>> l = find_smallest_char_counts(g, 3)
+    >>> l == ['third', 'first', 'second'] or l == ['third', 'second', 'first']
+    True
+    """
+    lst = list(g.get_all_vertices())
+    sorted_small = _n_smallest_chars(g, lst, n)
+    return sorted_small
+
+
+def _n_smallest_chars(g: Graph, lst: list, n: int) -> list:
+    """Return a list of n vertices whose associated articles have the smallest
+    character counts.
+
+    Preconditions:
+        - lst contains no duplicates
+        - 0 <= n <= len(g.get_all_vertices())
+    """
+    if len(lst) < 2:
+        return lst.copy()
+    else:
+        pivot = g.get_vertex_char_count(lst[0])
+        smaller, bigger = _partition_char_count(g, lst[1:], pivot)
+
+        if len(lst) == n:
+            # if length of list is cap, just return the sorted list
+            smaller_sorted = _n_smallest_chars(g, smaller, len(smaller))
+            bigger_sorted = _n_smallest_chars(g, bigger, len(bigger))
+
+            return smaller_sorted + [lst[0]] + bigger_sorted
+
+        elif len(smaller) == n - 1:
+            smaller_sorted = _sort_vertices_char_count(g, smaller)
+            return smaller_sorted + [lst[0]]
+
+        elif len(smaller) < n:
+            # must recurse on both smaller and bigger
+            smaller_sorted = _n_smallest_chars(g, smaller, len(smaller))
+            bigger_sorted = _n_smallest_chars(g, bigger, n - len(smaller) - 1)
+
+            return smaller_sorted + [lst[0]] + bigger_sorted
+
+        else:  # if len(smaller) > cap
+            return _n_smallest_chars(g, smaller, n)
+
+
+def _sort_vertices_char_count(g: Graph, lst: list) -> list:
+    """Return a list of the vertices contained in lst, sorted from lowest
+    to highest character counts.
+
+    Precondition:
+        - all(lst[i] for i in range(len(lst)))
+    """
+    if len(lst) < 2:
+        return lst.copy()
+    else:
+        pivot = g.get_vertex_char_count(lst[0])
+
+        smaller, bigger = _partition_char_count(g, lst[1:], pivot)
+
+        sorted_smaller = _sort_vertices_char_count(g, smaller)
+        sorted_bigger = _sort_vertices_char_count(g, bigger)
+
+        # returning a list of ITEMS
+        return sorted_smaller + [lst[0]] + sorted_bigger
+
+
+def _partition_char_count(g: Graph, lst: list, pivot: Any) -> tuple[list, list]:
+    """Return a partition of lst with the chosen pivot.
+
+    Return two lists, where the first contains the items in lst whose degrees are
+    <= pivot, and the second contains the items in lst with degrees > pivot.
+    """
+    smaller = []
+    bigger = []
+
+    for item in lst:
+        if g.get_vertex_char_count(item) <= pivot:
+            smaller.append(item)
+        else:
+            bigger.append(item)
+
+    return (smaller, bigger)
+
+
+#################################################################################
+# Link Count Analysis
+#################################################################################
 def find_fewest_edges_threshold(g: Graph, threshold: int, n: Optional[int] = None) -> set:
     """Return the set of vertices with fewer than or equal to threshold edges.
-    If cap is given, return only the first cap items below the threshold. If there are
-    fewer than cap items with a degree below the threshold, fewer than cap items will
+    If n is given, return only the first n items below the threshold. If there are
+    fewer than n items with a degree below the threshold, fewer than n items will
     be returned.
 
     Preconditions:
         - 0 <= threshold
-        - cap is None or 0 <= cap <= len(self._vertices)
+        - n is None or 0 <= n <= len(g.get_all_vertices())
 
     >>> g = Graph()
     >>> g.add_vertex('first', word_count=20)  # placeholder word_count
@@ -59,7 +165,7 @@ def find_fewest_edges_no_threshold(g: Graph, n: int) -> list:
     """Return a list of n vertices with the smallest degrees in the graph.
 
     Preconditions:
-        - 0 <= cap <= len(g.get_all_vertices())
+        - 0 <= n <= len(g.get_all_vertices())
 
     >>> g = Graph()
     >>> g.add_vertex('first', word_count=20) # placeholder for word_count
@@ -87,7 +193,7 @@ def _n_smallest_degrees(g: Graph, lst: list, n: int) -> list:
     """Return sorted list of first n items with the smallest degrees.
 
     Preconditions:
-        - 0 <= cap <= len(lst)
+        - 0 <= n <= len(lst)
         - No duplicates in lst
     """
     if len(lst) < 2:

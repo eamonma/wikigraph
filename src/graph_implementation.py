@@ -130,7 +130,7 @@ class Graph:
         else:
             raise ValueError
 
-    def get_all_vertices(self, kind: str = '') -> set:
+    def get_all_vertices(self) -> set:
         """Return a set of all vertex items in this graph.
 
         If kind != '', only return the items of the given vertex kind.
@@ -138,17 +138,23 @@ class Graph:
         Preconditions:
             - kind in {'', 'user', 'book'}
         """
-        if kind != '':
-            return {v.item for v in self._vertices.values() if v.kind == kind}
-        else:
-            return set(self._vertices.keys())
+        return set(self._vertices.keys())
 
     def get_vertex_degree(self, item: Any) -> int:
-        """Return the degree of the vertex associated with this item.
+        """Return the degree of the vertex associated with item.
 
         Raise a ValueError if item does not appear as a vertex in this graph."""
         if item in self._vertices:
             return len(self._vertices[item].neighbours)
+        else:
+            raise ValueError
+
+    def get_vertex_char_count(self, item: Any) -> int:
+        """Return the word count of the vertex associated with item.
+
+        Raise a ValueError if item does not appear as a vertex in this graph."""
+        if item in self._vertices:
+            return self._vertices[item].word_count
         else:
             raise ValueError
 
