@@ -2,7 +2,7 @@
 """Graph and _Vertex implementation for use in creating the Wikipedia graph"""
 from __future__ import annotations
 import os
-import csv
+import datetime
 from typing import Any
 
 # Make sure you've installed the necessary Python libraries (see assignment handout
@@ -29,21 +29,18 @@ class _Vertex:
     item: Any
     neighbours: set[_Vertex]
     redirect: str
-    word_count: int
-    # Add other metrics here and in the __init__ method
+    char_count: int
+    last_edit: datetime.timedelta
 
-    def __init__(self, item: Any, word_count: int, redirect: str = "") -> None:
+    def __init__(self, item: Any, char_count: int, redirect: str = "") -> None:
         """Initialize a new vertex with the given item and kind.
 
         This vertex is initialized with no neighbours.
-
-        Preconditions:
-            - kind in {'user', 'book'}
         """
         self.item = item
         self.neighbours = set()
         self.redirect = redirect
-        self.word_count = word_count
+        self.char_count = char_count
 
     def degree(self) -> int:
         """Return the degree of this vertex."""
@@ -206,42 +203,8 @@ class Graph:
     #     return self._vertices[item1].similarity_score(self._vertices[item2])
 
 
-def load_graph(reviews_file: str, book_names_file: str) -> Graph:
-    """Return a book review graph corresponding to the given datasets.
-
-    The book review graph stores one vertex for each user and book in the datasets.
-    Each vertex stores as its item either a user ID or book TITLE (the latter is why
-    you need the book_names_file). Use the "kind" _Vertex attribute to differentiate
-    between the two vertex types.
-
-    Edges represent a review between a user and a book. In this graph, each edge
-    only represents the existence of a review---IGNORE THE REVIEW SCORE in the
-    datasets, as we don't have a way to represent these scores (yet).
-
-    Preconditions:
-        - reviews_file is the path to a CSV file corresponding to the book review data
-          format described on the assignment handout
-        - book_names_file is the path to a CSV file corresponding to the book data
-          format described on the assignment handout
-
-    >>> g = load_review_graph('data/reviews_small.csv', 'data/book_names.csv')
-    >>> len(g.get_all_vertices(kind='book'))
-    4
-    >>> len(g.get_all_vertices(kind='user'))
-    5
-    >>> user1_reviews = g.get_neighbours('user1')
-    >>> len(user1_reviews)
-    3
-    >>> "Harry Potter and the Sorcerer's Stone (Book 1)" in user1_reviews
-    True
-    """
-    print("NOT IMPLEMENTED:")
-    print("=========================================================")
-    print("= we need to implement the file structure before we can =")
-    print("=         load a graph from said file structure         =")
-    print("=========================================================")
-    print("Returning an empty graph for now")
-    return Graph()
+def load_graph(edges_file: str, characteristics_file: str) -> Graph:
+    """Return a graph coresponding to the save files."""
 
 
 if __name__ == '__main__':
@@ -251,15 +214,15 @@ if __name__ == '__main__':
 
     os.chdir(__file__[0:-len('graph_implementation.py')])
 
-    # NOTE: These others are fine
-    import doctest
-    doctest.testmod()
+    # # NOTE: These others are fine
+    # import doctest
+    # doctest.testmod()
 
-    import python_ta
-    python_ta.check_all(config={
-        'max-line-length': 1000,
-        'disable': ['E1136'],
-        'extra-imports': ['csv', 'networkx'],
-        'allowed-io': ['load_review_graph'],
-        'max-nested-blocks': 4
-    })
+    # import python_ta
+    # python_ta.check_all(config={
+    #     'max-line-length': 1000,
+    #     'disable': ['E1136'],
+    #     'extra-imports': ['csv', 'networkx'],
+    #     'allowed-io': ['load_review_graph'],
+    #     'max-nested-blocks': 4
+    # })

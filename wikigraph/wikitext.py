@@ -83,8 +83,8 @@ def parse_wikilink(wikilink: str) -> list:
             else:
                 parsed_sublink = wikilink
 
-            return [wikilink if pipe_index == -1 else wikilink[:pipe_index]] +\
-                (parsed_sublink if lsbr_index != -1 and parsed_sublink else [])
+            return [wikilink if pipe_index == -1 else wikilink[:pipe_index]] + \
+                   (parsed_sublink if lsbr_index != -1 and parsed_sublink else [])
 
         # === If the link is... ===
         # ...a section on different page
@@ -116,11 +116,13 @@ def char_count(wikitext: str) -> int:
     # ending tag is always 84 chars away from </page>| here
     return len(wikitext) - 84 - text_start_tag_end_index
 
-def extract_content(wikitext: str) -> int:
+
+def extract_content(wikitext: str) -> str:
     """Return content between <text> tags GIVEN <page> ELEMENT
     """
     text_start_tag_end_index = text_regex.search(wikitext).end()
     return wikitext[text_start_tag_end_index:len(wikitext) - 84]
+
 
 def last_revision(wikitext: str) -> datetime:
     """Return last revision between <timestamp> tags GIVEN <page> ELEMENT
@@ -137,6 +139,7 @@ if __name__ == "__main__":
 
     # Do doctest
     import doctest
+
     doctest.testmod()
 
     # Open testing files... options include k.xml, ninepointthreek.xml, hundredk.xml, million.xml
