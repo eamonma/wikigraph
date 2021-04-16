@@ -190,37 +190,20 @@ def partition(filename: str, partition_points: list[int], output: str) -> None:
     current_partition = []
     n = 1
 
-    # print("Partitioning Dataset...")
-    # with tqdm(total=FILE_LINE_COUNT) as progressbar:
-    #     for line in fileinput.input([filename]):
-    #         if count in partition_points:
-    #             outfile = open(output + "-%04d" % n + '.xml', 'w')
-    #             outfile.write(''.join(current_partition))
-    #             outfile.close()
-    #
-    #             n += 1
-    #             current_partition = []
-    #
-    #         current_partition.append(line)
-    #         count += 1
-    #         progressbar.update(1)
+    print("Partitioning Dataset...")
+    with tqdm(total=FILE_LINE_COUNT) as progressbar:
+        for line in fileinput.input([filename]):
+            if count in partition_points:
+                outfile = open(output + "-%04d" % n + '.xml', 'w')
+                outfile.write(''.join(current_partition))
+                outfile.close()
 
-    print("Partitioning dataset...")
-    set_partition_points = set(partition_points)
-    # with tqdm(total=FILE_LINE_COUNT) as progressbar:
-    for line in fileinput.input([filename]):
-        if count in set_partition_points:
-            outfile = open(output + "-%04d" % n + '.xml', 'w')
-            outfile.write(''.join(current_partition))
-            outfile.close()
+                n += 1
+                current_partition = []
 
-            n += 1
-
-            current_partition = []
-
-        current_partition.append(line)
-        count += 1
-        # progressbar()
+            current_partition.append(line)
+            count += 1
+            progressbar.update(1)
 
 
 def partition_on_num(data_file: str, index_file: str, num: int, out_partition_file: str,
@@ -310,8 +293,8 @@ if __name__ == '__main__':
     partition_on_num('data/raw/reduced/million.xml',
                      'data/processed/wiki-index.txt',
                      10,
-                     'data/processed/partitioned_2/partition-index.txt',
-                     'data/processed/partitioned_2/million')
+                     'data/processed_2/partitioned/partition-index.txt',
+                     'data/processed_2/partitioned/million')
 
     # # Partition full dataset
     # ind = read_index('../data/processed/wiki-index.txt')
