@@ -72,6 +72,9 @@ def _n_oldest_edits(g: Graph, lst: list, n: int) -> list:
 def _sort_vertices_last_edit(g: Graph, lst: list) -> list:
     """Return a list of all the vertices contained in lst, sorted from
     shortest time since last edit to longest time since last edit.
+
+    Preconditions:
+        - all items in lst are vertices in g
     """
     if len(lst) < 2:
         return lst.copy()
@@ -174,7 +177,7 @@ def _sort_vertices_char_count(g: Graph, lst: list) -> list:
     to highest character counts.
 
     Preconditions:
-        - all(lst[i] for i in range(len(lst)))
+        - all items in lst are vertices in g
     """
     if len(lst) < 2:
         return lst.copy()
@@ -329,7 +332,7 @@ def _sort_vertices_by_degree(g: Graph, lst: list) -> list:
     to highest degree.
 
     Preconditions:
-        - all(lst[i] for i in range(len(lst)))
+        - all items in lst are vertices in g
     """
     if len(lst) < 2:
         return lst.copy()
