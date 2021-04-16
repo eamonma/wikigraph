@@ -2,6 +2,7 @@ import os
 import fileinput
 import re
 from tqdm import tqdm
+import concurrent.futures
 
 from wikigraph import wikitext
 from wikigraph import partition_data
@@ -47,20 +48,12 @@ def process_partition(partition_file: str, index: list[int], p_points: list[int]
     if os.path.exists(links_to_file[:-4] + '-' + partition_file[-8:-4] + '.csv'):
         os.remove(links_to_file[:-4] + '-' + partition_file[-8:-4] + '.csv')
 
-    # f = open(info_file[-4:] + '-' +
-    #                          partition_file[-8:-4] + '.csv', 'a')
-    #                 f.write(title + ',' + redirect + ',' +
-    #                         str(character_count) + ',' + str(last_edit) + '\n')
-    #                 f.close()
-
-    # with tqdm(total=20852797) as progressbar:
     f_path = info_file[:-4] + '-' + partition_file[-8:-4] + '.csv'
     g_path = links_to_file[:-4] + '-' + partition_file[-8:-4] + '.csv'
 
     f = open(f_path, "w")
     g = open(g_path, "w")
 
-    # with open(f_path, "w"), open(g_path, "w") as f, g:
     for line in iterator_thing:
         current_page += line
         if count in offset_index:
@@ -106,48 +99,32 @@ def process_partition(partition_file: str, index: list[int], p_points: list[int]
     g.close()
 
 
-if __name__ == '__main__':
-    os.chdir(__file__[0:-len('wikigraph/process_wikitext.py')])
-    import time
-    import concurrent.futures
+def parallel_process_partition(data_dir: str = "data/processed", partition_rel_dir: str = "partitioned") -> None:
+    """Run process_partition with councurrent processes
+    """
+    partitioned_files = os.listdir(f"{data_dir}/{partition_rel_dir}")
 
-    partition_rel_dir = "partitioned_2"
-
-    partitioned_files = os.listdir(f"data/processed/{partition_rel_dir}")
-
-    index = partition_data.read_index('data/processed/wiki-index.txt')
+    index = partition_data.read_index(f'{data_dir}/wiki-index.txt')
     p_points = partition_data.read_index(
-        f'data/processed/{partition_rel_dir}/partition-index.txt')
-
-    start = time.perf_counter()
+        f'{data_dir}/{partition_rel_dir}/partition-index.txt')
 
     with concurrent.futures.ProcessPoolExecutor() as executor:
-        processes = [executor.submit(process_partition, f'data/processed/{partition_rel_dir}/{file}',
+        processes = [executor.submit(process_partition, f'{data_dir}/{partition_rel_dir}/{file}',
                                      index,
                                      p_points,
-                                     'data/processed/links_to.csv',
-                                     'data/processed/info.csv')
+                                     f'{data_dir}/graph/links_to.csv',
+                                     f'{data_dir}/graph/info.csv')
                      for file in partitioned_files]
 
         for f in concurrent.futures.as_completed(processes):
-            print(f.done())
+            print(f"{f.done() and 'Done'}")
 
-        # f1 =
-        # f2 = executor.submit(do_something, 1)
-        # print(f1.result())
-        # print(f.result())
 
-        # for _ in range(10):
-        #     p = multiprocessing.Process(target=do_something, args=[1.5])
-        #     p.start()
-        #     processes.append(p)
+if __name__ == '__main__':
+    os.chdir(__file__[0:-len('wikigraph/process_wikitext.py')])
+    import time
 
-        # for process in processes:
-        #     process.join()
-
-    finish = time.perf_counter()
-    print(f"Time taken: {round(finish - start, 2)}")
-
+    parallel_process_partition("data/processed", "partitioned_2")
     # from experiments import versus_wtp
 
     # versus_wtp("")
