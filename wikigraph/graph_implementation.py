@@ -11,30 +11,31 @@ import networkx as nx  # Used for visualizing graphs (by convention, referred to
 
 
 class _Vertex:
-    """A vertex in a book review graph, used to represent a user or a book.
-
-    Each vertex item is either a user id or book title. Both are represented as strings,
-    even though we've kept the type annotation as Any to be consistent with lecture.
+    """A vertex in a graph representing Wikipedia. Each vertex item is an article in Wikipedia,
+    with edges representing internal links in Wikipedia between articles.
 
     Instance Attributes:
-        - item: The data stored in this vertex, representing a user or book.
-        - kind: The type of this vertex: 'user' or 'book'.
+        - item: The data stored in this vertex, representing a Wikipedia article.
         - neighbours: The vertices that are adjacent to this vertex.
+        - char_count: The character count of the article
+        - last_edit: Time since the date of last revision and January 1st, 2021, the day
+                     the data was collected
 
     Representation Invariants:
         - self not in self.neighbours
         - all(self in u.neighbours for u in self.neighbours)
-        - self.kind in {'user', 'book'}
     """
     item: Any
     neighbours: set[_Vertex]
     char_count: int
-    last_edit: datetime.timedelta
+    last_edit: int
     redirect: str
 
+    # todo: temporarily set a default value
     def __init__(self, item: Any, char_count: int,
-                 last_edit: datetime.timedelta, redirect: str = "") -> None:
-        """Initialize a new vertex with the given item and kind.
+                 last_edit: int = 0, redirect: str = "") -> None:
+        """Initialize a new vertex with the given item, char_count, last_edit,
+        and redirect.
 
         This vertex is initialized with no neighbours.
         """
@@ -48,7 +49,7 @@ class _Vertex:
         """Return the degree of this vertex."""
         return len(self.neighbours)
 
-    # NOTE: This might be useful some time in the future so I'm leaving it here
+    # todo: determine usefulness of this with regards to answering our research question
     # def similarity_score(self, other: _Vertex) -> float:
     #     """Return the similarity score between this vertex and other.
 
@@ -76,17 +77,15 @@ class Graph:
         """Initialize an empty graph (no vertices or edges)."""
         self._vertices = {}
 
-    def add_vertex(self, item: Any, word_count: int) -> None:
-        """Add a vertex with the given item and kind to this graph.
+    def add_vertex(self, item: Any, char_count: int, last_edit: int = 0,
+                   redirect: str = "") -> None:
+        """Add a vertex with the given item and char_count to this graph.
 
         The new vertex is not adjacent to any other vertices.
         Do nothing if the given item is already in this graph.
-
-        Preconditions:
-            - kind in {'user', 'book'}
         """
         if item not in self._vertices:
-            self._vertices[item] = _Vertex(item, word_count)
+            self._vertices[item] = _Vertex(item, char_count, last_edit)
 
     def add_edge(self, item1: Any, item2: Any) -> None:
         """Add an edge between the two vertices with the given items in this graph.
@@ -131,11 +130,6 @@ class Graph:
 
     def get_all_vertices(self) -> set:
         """Return a set of all vertex items in this graph.
-
-        If kind != '', only return the items of the given vertex kind.
-
-        Preconditions:
-            - kind in {'', 'user', 'book'}
         """
         return set(self._vertices.keys())
 
@@ -149,39 +143,24 @@ class Graph:
             raise ValueError
 
     def get_vertex_char_count(self, item: Any) -> int:
-        """Return the word count of the vertex associated with item.
+        """Return the character count of the vertex associated with item.
 
         Raise a ValueError if item does not appear as a vertex in this graph."""
         if item in self._vertices:
-            return self._vertices[item].word_count
+            return self._vertices[item].char_count
         else:
             raise ValueError
 
-    def to_networkx(self, max_vertices: int = 5000) -> nx.Graph:
-        """Convert this graph into a networkx Graph.
+    def get_vertex_edit_time(self, item: Any) -> int:
+        """Return the last_edit of item.
 
-        max_vertices specifies the maximum number of vertices that can appear in the graph.
-        (This is necessary to limit the visualization output for large graphs.)
+        Raise a ValueError if item does not appear as a vertex in this graph."""
+        if item in self._vertices:
+            return self._vertices[item].last_edit
+        else:
+            raise ValueError
 
-        Note that this method is provided for you, and you shouldn't change it.
-        """
-        graph_nx = nx.Graph()
-        for v in self._vertices.values():
-            graph_nx.add_node(v.item, kind=v.kind)
-
-            for u in v.neighbours:
-                if graph_nx.number_of_nodes() < max_vertices:
-                    graph_nx.add_node(u.item, kind=u.kind)
-
-                if u.item in graph_nx.nodes:
-                    graph_nx.add_edge(v.item, u.item)
-
-            if graph_nx.number_of_nodes() >= max_vertices:
-                break
-
-        return graph_nx
-
-    # NOTE: This might be useful some time in the future so I'm leaving it here
+    # todo: determine usefulness
     # def get_similarity_score(self, item1: Any, item2: Any) -> float:
     #     """Return the similarity score between the two given items in this graph.
 
@@ -206,7 +185,7 @@ class Graph:
 
 
 def load_graph(edges_file: str, characteristics_file: str) -> Graph:
-    """Return a graph coresponding to the save files."""
+    """Return a graph corresponding to the save files."""
 
 
 if __name__ == '__main__':
