@@ -130,9 +130,9 @@ def last_revision(wikitext: str) -> int:
     revision_start_index = wikitext.find("<tim")
     revision_end_index = wikitext.find("</tim", revision_start_index)
     # minus one to remove Z
-    return (datetime.fromisoformat("2021-01-01T00:01:01+00:00") - \
+    return (datetime.fromisoformat("2021-01-01T00:01:01+00:00").replace(tzinfo=None) - \
         datetime.fromisoformat(
-            wikitext[revision_start_index + 11:revision_end_index - 1].replace("Z", "+00:00"))).seconds
+            wikitext[revision_start_index + 11:revision_end_index - 1].replace("Z", "+00:00")).replace(tzinfo=None)).seconds
 
 
 def parse_redirect(wikitext: str) -> str:
