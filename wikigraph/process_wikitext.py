@@ -1,18 +1,112 @@
 import os
-from wikigraph import wikitext
-from wikigraph import partition_data
+import fileinput
+import re
 from tqdm import tqdm
 
+from wikigraph import wikitext
+from wikigraph import partition_data
 
-def process_it(data_file: str, index_file: str, partition_file: str, edge_file: str, info_file: str) -> None:
+
+def process_partition(partition_file: str, index_file: str, partition_index_file: str,
+                      links_to_file: str, info_file: str) -> None:
     """Process the entire enwiki database and output it to the desired file
 
     Assumes that the dataset is partitioned
     """
+    # Get the index and the partition_points
     index = partition_data.read_index(index_file)
-    p_points = partition_data.read_index(partition_file)
+    p_points = partition_data.read_index(partition_index_file)
+
+    # Get the partition number from the file number
+    partition_number = int(partition_file[-8:-4])
+
+    iterator_thing = fileinput.input([partition_file])
+
+    if partition_number == 1:
+        line_offset = 45
+
+        # Getting rid of the preamble in the xml (only in the first partition)
+        chop_line_count = 0
+        for line in iterator_thing:
+            if chop_line_count == 43:
+                break
+            chop_line_count += 1
+    else:
+        line_offset = p_points[partition_number - 2]
+
+    # offset the index based on the partition number
+    offset_index = {i - line_offset for i in index}
+
+    count = 1
+    page_number = 1
+    current_page = ''
+
+    if os.path.exists(info_file + '-' + partition_file[-8:-4] + '.csv'):
+        os.remove(info_file + '-' + partition_file[-8:-4] + '.csv')
+
+    if os.path.exists(links_to_file + '-' + partition_file[-8:-4] + '.csv'):
+        os.remove(links_to_file + '-' + partition_file[-8:-4] + '.csv')
+
+    with tqdm(total=20852797) as progressbar:
+        for line in iterator_thing:
+            current_page += line
+            if count in offset_index:
+                # Get the title
+                title = wikitext.get_title(current_page).lower()
+                # Get if the article is a redirect or not
+                # ("" if not, the article it redirects to if so)
+                redirect = wikitext.parse_redirect(current_page).lower()
+
+                if not redirect:
+                    # Get the number of characters in the text of the article
+                    character_count = wikitext.char_count(current_page)
+                    # Get the timedelta between the last edit and 2021-01-01
+                    last_edit = wikitext.last_revision(current_page)
+
+                    # Write information if not redirect
+                    f = open(info_file[-4:] + '-' + partition_file[-8:-4] + '.csv', 'a')
+                    f.write(title + ',' + redirect + ',' + str(character_count) + ',' + str(last_edit) + '\n')
+                    f.close()
+
+                    # Get a set of the links_to
+                    links_to = {i.lower() for i in wikitext.collect_links(current_page)}
+
+                    # Write a list of edges
+                    f = open(links_to_file[-4:] + '-' + partition_file[-8:-4] + '.csv', 'a')
+                    f.write(title + ',' + ','.join(links_to).replace('\n', '\\n').replace('\t', '\\t').replace('\r', '\\r') + '\n')
+                    f.close()
+                else:
+                    # Write information if redirect
+                    f = open(info_file[-4:] + '-' + partition_file[-8:-4] + '.csv', 'a')
+                    f.write(title + ',' + redirect + ',,\n')
+                    f.close()
+
+                    # Write an empty list of edges since a redirect file will have no edges
+                    f = open(links_to_file[-4:] + '-' + partition_file[-8:-4] + '.csv', 'a')
+                    f.write(title + ',\n')
+                    f.close()
+
+                # Reset the contents of the page
+                current_page = ''
+                # Update the progress bar
+                progressbar.update(1)
+
+            # Increment the line number
+            count += 1
 
 
 if __name__ == '__main__':
     os.chdir(__file__[0:-len('process_wikitext.py')])
     # Example runner of
+
+    process_partition('../data/processed/partitioned_2/million-0002.xml',
+                      '../data/processed/wiki-index.txt',
+                      '../data/processed/partitioned_2/partition-index.txt',
+                      '../data/processed/links_to.csv',
+                      '../data/processed/info.csv')
+
+    # process_partition('../data/processed/partitioned/enwiki-20210101-0002.xml',
+    #                   '../data/processed/wiki-index.txt',
+    #                   '../data/processed/partitioned/partition-index.txt',
+    #                   'edge.csv',
+    #                   'info.csv')
