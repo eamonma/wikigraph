@@ -207,7 +207,7 @@ def concatenate_files(file_locations: str,
     Example Run
     >>> concatenate_files('data/processed/graph', 'wiki-info.tsv', 'wiki-links.tsv')
     """
-    os.chdir(info_file)
+    # os.chdir(__file__[0:-len('wikigraph/process_wikitext.py')] + '/data/processed')
 
     # Get the info and links files
     info_files = sorted([info_file
@@ -217,31 +217,35 @@ def concatenate_files(file_locations: str,
                           for links_file in os.listdir(file_locations)
                           if "links" in links_file])
 
+    os.chdir(file_locations)
+
     # Concatenate the info files
     print("Concatenating Info Files...")
     with tqdm(total=len(info_files)) as progressbar:
-        target_info_file_name = out_info_file;
-        shutil.copy(info_files[0], target_file_name)
-        with open(target_file_name, 'a') as out_file:
+        target_info_file_name = out_info_file
+        shutil.copy(info_files[0], target_info_file_name)
+        with open(target_info_file_name, 'a') as out_file:
             for source_file in info_files[1:]:
                 with open(source_file, 'r') as in_file:
                     shutil.copyfileobj(in_file, out_file)
                     in_file.close()
                     progressbar.update(1)
             out_file.close()
+        progressbar.update(1)
 
     # Concatenate the links files
     print("Concatenating Links Files...")
     with tqdm(total=len(links_files)) as progressbar:
-        target_links_file_name = out_links_files;
-        shutil.copy(links_files[0], target_file_name)
-        with open(target_file_name, 'a') as out_file:
+        target_links_file_name = out_links_files
+        shutil.copy(links_files[0], target_links_file_name)
+        with open(target_links_file_name, 'a') as out_file:
             for source_file in links_files[1:]:
                 with open(source_file, 'r') as in_file:
                     shutil.copyfileobj(in_file, out_file)
                     in_file.close()
                     progressbar.update(1)
             out_file.close()
+        progressbar.update(1)
 
     # Remove the left over files
     # ONLY UNCOMMENT THIS WHEN YOU KNOW THAT EVERYTHING WORKS
