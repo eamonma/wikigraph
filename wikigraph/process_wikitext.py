@@ -2,6 +2,7 @@ import os
 import csv
 import fileinput
 import re
+import shutil
 from tqdm import tqdm
 import concurrent.futures
 
@@ -14,6 +15,15 @@ def process_partition(partition_file: str, index: list[int], p_points: list[int]
     """Process the entire enwiki database and output it to the desired file
 
     Assumes that the dataset is partitioned
+
+    Example Run:
+    >>> index = partition_data.read_index('data/processed/wiki-index.txt')
+    >>> p_points = partition_data.read_index('data/processed/partitioned/partition-index.txt')
+    >>> process_partition('data/processed/partitioned/enwiki-20210101-0001.xml',
+    ...                   index,
+    ...                   p_points,
+    ...                   'data/processed/graph/wiki-links.tsv',
+    ...                   'data/processed/graphs/wiki-info.tsv')
     """
     # Get the partition number from the file number
     partition_number = int(partition_file[-8:-4])
@@ -38,19 +48,23 @@ def process_partition(partition_file: str, index: list[int], p_points: list[int]
     count = 1
     current_page = ''
 
+    # If the file already exists, delete it to overwrite it
     if os.path.exists(info_file[:-4] + '-' + partition_file[-8:-4] + '.tsv'):
         os.remove(info_file[:-4] + '-' + partition_file[-8:-4] + '.tsv')
 
+    # If the file already exists, delete it to overwrite it
     if os.path.exists(links_file[:-4] + '-' + partition_file[-8:-4] + '.tsv'):
         os.remove(links_file[:-4] + '-' + partition_file[-8:-4] + '.tsv')
 
+    # File writere paths
     f_path = info_file[:-4] + '-' + partition_file[-8:-4] + '.tsv'
     g_path = links_file[:-4] + '-' + partition_file[-8:-4] + '.tsv'
 
+    # Open file writer
     f = open(f_path, "w")
     g = open(g_path, "w")
 
-    i = 0
+    # i = 0
 
     for line in iterator_thing:
         current_page += line
@@ -67,14 +81,12 @@ def process_partition(partition_file: str, index: list[int], p_points: list[int]
                     # Get the number of characters in the text of the article
                     character_count = wikitext.char_count(current_page)
                 except Exception as e:
-                    # print("fucked shit up: " + current_page)
                     character_count = 0
 
                 try:
                     # Get the timedelta between the last edit and 2021-01-01
                     last_edit = wikitext.last_revision(current_page)
                 except Exception as e:
-                    # print("fucked shit up: " + current_page)
                     last_edit = 0
 
                 # Write information if not redirect
@@ -112,6 +124,9 @@ def parallel_process_partition(data_dir: str = "data/processed",
                                partition_rel_dir: str = "partitioned",
                                max_workers: int = 10) -> None:
     """Run process_partition with councurrent processes
+
+    Example Run:
+    >>> parallel_process_partition('data/processed', 'partitioned', max_workers=5)
     """
     os.chdir(__file__[0:-len('wikigraph/process_wikitext.py')])
 
@@ -138,7 +153,12 @@ def parallel_process_partition(data_dir: str = "data/processed",
 
 
 def collapse_redirects(links_file: str, info_file: str) -> dict:
-    """Get rid of redirect links in info_file"""
+    """Get rid of redirect links in info_file
+
+    Example Run:
+    >>> collapse_redirects('data/processed/graph/wiki-info.tsv',
+    ...                    'data/processed/graph/wiki-links.tsv')
+    """
     redirects = dict()
     links = dict()
     info = dict()
@@ -179,9 +199,63 @@ def collapse_redirects(links_file: str, info_file: str) -> dict:
     links_w.close()
 
 
+def concatenate_files(file_locations: str,
+                      out_info_file: str = 'wiki-info.tsv',
+                      out_links_files: str = 'wiki-links.tsv') -> None:
+    """Concatenate the info and links files generated from the computation into one file each
+
+    Example Run
+    >>> concatenate_files('data/processed/graph', 'wiki-info.tsv', 'wiki-links.tsv')
+    """
+    os.chdir(info_file)
+
+    # Get the info and links files
+    info_files = sorted([info_file
+                         for info_file in os.listdir(file_locations)
+                         if "info" in info_file])
+    links_files = sorted([links_file
+                          for links_file in os.listdir(file_locations)
+                          if "links" in links_file])
+
+    # Concatenate the info files
+    print("Concatenating Info Files...")
+    with tqdm(total=len(info_files)) as progressbar:
+        target_info_file_name = out_info_file;
+        shutil.copy(info_files[0], target_file_name)
+        with open(target_file_name, 'a') as out_file:
+            for source_file in info_files[1:]:
+                with open(source_file, 'r') as in_file:
+                    shutil.copyfileobj(in_file, out_file)
+                    in_file.close()
+                    progressbar.update(1)
+            out_file.close()
+
+    # Concatenate the links files
+    print("Concatenating Links Files...")
+    with tqdm(total=len(links_files)) as progressbar:
+        target_links_file_name = out_links_files;
+        shutil.copy(links_files[0], target_file_name)
+        with open(target_file_name, 'a') as out_file:
+            for source_file in links_files[1:]:
+                with open(source_file, 'r') as in_file:
+                    shutil.copyfileobj(in_file, out_file)
+                    in_file.close()
+                    progressbar.update(1)
+            out_file.close()
+
+    # Remove the left over files
+    # ONLY UNCOMMENT THIS WHEN YOU KNOW THAT EVERYTHING WORKS
+    # for i in info_files:
+    #     os.remove(i)
+    #
+    # for i in links_files:
+    #     os.remove(i)
+
+
 if __name__ == '__main__':
     os.chdir(__file__[0:-len('wikigraph/process_wikitext.py')])
-    import time
+
+    concatenate_files('data/processed/graph')
 
     # parallel_process_partition("data/processed_2", "partitioned_2")
     # from experiments import versus_wtp
@@ -198,13 +272,10 @@ if __name__ == '__main__':
     # index = partition_data.read_index(f'data/processed_2/wiki-index.txt')
     # p_points = partition_data.read_index(
     #     f'data/processed_2/partitioned_2/partition-index.txt')
-    from wikigraph import partition_data
 
     # partition_data.write_index(partition_data.get_partition_points_num(
     #     80, partition_data.read_index("data/processed/wiki-index.txt")),
     #     "data/processed/partitioned/partition-index.txt")
-
-    os.chdir(__file__[0:-len('wikigraph/process_wikitext.py')])
 
     # partitioned_files = [partitioned_file for partitioned_file in os.listdir(
     #     f"data/processed/partitioned") if ".xml" in partitioned_file]
@@ -246,30 +317,30 @@ if __name__ == '__main__':
     #     use_kwargs=True
     # )
 
-    parallel_process_partition("data/processed", "partitioned")
+    # parallel_process_partition("data/processed", "partitioned", max_workers=1)
 
-# partition_on_num('data/raw/reduced/million.xml',
-#                  'data/processed/wiki-index.txt',
-#                  10,
-#                  'data/processed_2/partitioned_2/partition-index.txt',
-#                  'data/processed_2/partitioned_2/million')
+    # partition_on_num('data/raw/reduced/million.xml',
+    #                  'data/processed/wiki-index.txt',
+    #                  10,
+    #                  'data/processed_2/partitioned_2/partition-index.txt',
+    #                  'data/processed_2/partitioned_2/million')
 
-# generate = True
+    # generate = True
 
-# if generate:
-#     index = partition_data.read_index('data/processed/wiki-index.txt')
-#     p_points = partition_data.read_index('data/processed/partitioned_2/partition-index.txt')
+    # if generate:
+    #     index = partition_data.read_index('data/processed/wiki-index.txt')
+    #     p_points = partition_data.read_index('data/processed/partitioned_2/partition-index.txt')
 
-#     process_partition('data/processed/partitioned_2/million-0002.xml',
-#                       index,
-#                       p_points,
-#                       'data/processed/graph/links.tsv',
-#                       'data/processed/graph/info.tsv')
-# else:
-#     collapse_redirects('data/processed/links-0002.tsv', 'data/processed/info-0002.tsv')
+    #     process_partition('data/processed/partitioned_2/million-0002.xml',
+    #                       index,
+    #                       p_points,
+    #                       'data/processed/graph/links.tsv',
+    #                       'data/processed/graph/info.tsv')
+    # else:
+    #     collapse_redirects('data/processed/links-0002.tsv', 'data/processed/info-0002.tsv')
 
-# process_partition('../data/processed/partitioned/enwiki-20210101-0002.xml',
-#                   '../data/processed/wiki-index.txt',
-#                   '../data/processed/partitioned/partition-index.txt',
-#                   'edge.tsv',
-#                   'info.tsv')
+    # process_partition('../data/processed/partitioned/enwiki-20210101-0002.xml',
+    #                   '../data/processed/wiki-index.txt',
+    #                   '../data/processed/partitioned/partition-index.txt',
+    #                   'edge.tsv',
+    #                   'info.tsv')
