@@ -124,13 +124,40 @@ def extract_content(wikitext: str) -> int:
     return wikitext[text_start_tag_end_index:len(wikitext) - 84]
 
 
-def last_revision(wikitext: str) -> datetime:
+def last_revision(wikitext: str) -> int:
     """Return last revision between <timestamp> tags GIVEN <page> ELEMENT
     """
-    revision_start_index = wikitext.find("<timestamp")
-    revision_end_index = wikitext.find("</timestamp", revision_start_index)
+    revision_start_index = wikitext.find("<tim")
+    revision_end_index = wikitext.find("</tim", revision_start_index)
     # minus one to remove Z
-    return datetime.fromisoformat(wikitext[revision_start_index + 11:revision_end_index - 1].replace("Z", "+00:00"))
+    return (datetime.fromisoformat("2021-01-01T00:01:01+00:00") - \
+        datetime.fromisoformat(
+            wikitext[revision_start_index + 11:revision_end_index - 1].replace("Z", "+00:00"))).seconds
+
+
+def parse_redirect(wikitext: str) -> str:
+    """Return empty string if page not redirect
+    Return page to redirect
+    """
+    if "<redirect" not in wikitext:
+        return ""
+    else:
+        redirect_start_index = wikitext.find("<r")
+        # get index of immediate linebreak after
+        redirect_end_index = wikitext.find("\n", redirect_start_index)
+        # `<redirect title="` is 17 characters, `" />` is 4 characters
+        return wikitext[redirect_start_index + 17: redirect_end_index - 4]
+
+
+def get_title(wikitext: str) -> str:
+    """Return title of <page>
+    """
+    # first <t of page is necessarily title
+    title_start_index = wikitext.find("<t")
+    # get index of immediate linebreak after
+    title_end_index = wikitext.find("\n", title_start_index)
+    # <title> is 7 characters, </title> is 8 characters
+    return wikitext[title_start_index + 7: title_end_index - 8]
 
 
 if __name__ == "__main__":
@@ -146,6 +173,7 @@ if __name__ == "__main__":
         wikitext = reader.read()
 
     from experiments import versus_wtp
+
     # print(collect_links(
     #     "file:Ceres and Vesta, Moon size comparison.jpg|thumb|The largest asteroid in the previous image, [[4 Vesta|Vesta"))
 
