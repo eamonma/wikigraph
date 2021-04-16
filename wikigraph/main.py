@@ -35,10 +35,19 @@ if __name__ == "__main__":
     #                                 'data/processed/partitioned/partition-index.txt',
     #                                 'data/processed/partitioned/enwiki-20210101-pages-articles-multistream.xml')
 
+    from wikigraph import partition_data
+
+    index = partition_data.read_index(f'data/processed/wiki-index.txt')
+    p_points = partition_data.read_index(
+        f'data/processed/partitioned/partition-index.txt')
+
     import process_wikitext
 
-    process_wikitext.parallel_process_partition(
-        data_dir="data/processed", partition_rel_dir="partitioned")
+    process_wikitext.process_partition(
+        "data/processed/partitioned/enwiki-20210101-0001.xml", index, p_points, "data/processed/graph/links.csv", "data/processed/graph/info.csv")
+
+    # process_wikitext.parallel_process_partition(
+    #     data_dir="data/processed", partition_rel_dir="partitioned")
 
     # versus_wtp.diff_lists([item for item in collect_links(wikitext) if item],
     #                        [l.title for l in wtp.parse(wikitext).wikilinks if l.title], io=True)

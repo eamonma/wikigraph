@@ -9,7 +9,7 @@ from wikigraph import partition_data
 
 
 def process_partition(partition_file: str, index: list[int], p_points: list[int],
-                      links_to_file: str, info_file: str) -> None:
+                      links_file: str, info_file: str) -> None:
     """Process the entire enwiki database and output it to the desired file
 
     Assumes that the dataset is partitioned
@@ -45,11 +45,11 @@ def process_partition(partition_file: str, index: list[int], p_points: list[int]
     if os.path.exists(info_file[:-4] + '-' + partition_file[-8:-4] + '.csv'):
         os.remove(info_file[:-4] + '-' + partition_file[-8:-4] + '.csv')
 
-    if os.path.exists(links_to_file[:-4] + '-' + partition_file[-8:-4] + '.csv'):
-        os.remove(links_to_file[:-4] + '-' + partition_file[-8:-4] + '.csv')
+    if os.path.exists(links_file[:-4] + '-' + partition_file[-8:-4] + '.csv'):
+        os.remove(links_file[:-4] + '-' + partition_file[-8:-4] + '.csv')
 
     f_path = info_file[:-4] + '-' + partition_file[-8:-4] + '.csv'
-    g_path = links_to_file[:-4] + '-' + partition_file[-8:-4] + '.csv'
+    g_path = links_file[:-4] + '-' + partition_file[-8:-4] + '.csv'
 
     f = open(f_path, "w")
     g = open(g_path, "w")
@@ -73,12 +73,12 @@ def process_partition(partition_file: str, index: list[int], p_points: list[int]
                 f.write(title + ',' + redirect + ',' +
                         str(character_count) + ',' + str(last_edit) + '\n')
 
-                # Get a set of the links_to
-                links_to = {i.lower()
+                # Get a set of the links
+                links = {i.lower()
                             for i in wikitext.collect_links(current_page)}
 
                 # Write a list of edges
-                g.write(title + ',' + ','.join(links_to).replace('\n',
+                g.write(title + ',' + ','.join(links).replace('\n',
                         '\\n').replace('\t', '\\t').replace('\r', '\\r') + '\n')
             else:
                 # Write information if redirect
@@ -116,7 +116,7 @@ def parallel_process_partition(data_dir: str = "data/processed", partition_rel_d
         processes = [executor.submit(process_partition, f'{data_dir}/{partition_rel_dir}/{file}',
                                      index,
                                      p_points,
-                                     f'{data_dir}/graph/links_to.csv',
+                                     f'{data_dir}/graph/links.csv',
                                      f'{data_dir}/graph/info.csv')
                      for file in partitioned_files]
 
