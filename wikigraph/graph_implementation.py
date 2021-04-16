@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Graph and _Vertex implementation for use in creating the Wikipedia graph"""
 from __future__ import annotations
 import os
@@ -7,7 +6,8 @@ from typing import Any
 
 # Make sure you've installed the necessary Python libraries (see assignment handout
 # "Installing new libraries" section)
-import networkx as nx  # Used for visualizing graphs (by convention, referred to as "nx")
+# Used for visualizing graphs (by convention, referred to as "nx")
+import networkx as nx
 
 
 class _Vertex:

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Functions for analysing the graph of Wikipedia data."""
 from __future__ import annotations
 import os

@@ -91,7 +91,7 @@ def test_char_count():
 def test_last_revision():
     from datetime import datetime
     assert wikitext.last_revision(
-        animation_page) == 45160
+        animation_page) == 45100
 
 
 if __name__ == '__main__':

@@ -240,7 +240,7 @@ def partition_on_num(data_file: str, index_file: str, num: int, out_partition_fi
     partition(data_file, p_points, output)
 
 
-def partition_on_size(data_file: str, index_file: str, size: int, out_partition_file: str) -> None:
+def partition_on_size(data_file: str, index_file: str, size: int, out_partition_file: str, output: str) -> None:
     """Run all the methods for partitioning the data
 
     Example call:
