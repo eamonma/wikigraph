@@ -160,6 +160,31 @@ class Graph:
         else:
             raise ValueError
 
+    def to_pyvis(self, max_vertices: int = 5000) -> Network:
+        """Convert this graph into a PyVis Network object.
+
+        max_vertices specifies the maximum number of vertices that can appear in the graph.
+
+        TODO: NOTE THAT THIS DOES REQUIRE YOU TO HAVE PYVIS INSTALLED
+        FIXME: every time you run this without iPython, you get a KeyError
+        # https://towardsdatascience.com/making-network-graphs-interactive-with-python-and-pyvis-b754c22c270
+        """
+        graph_pyvis = Network()
+        for v in self._vertices.values():
+            graph_pyvis.add_node(v.item)
+
+            for u in v.neighbours:
+                if graph_pyvis.num_nodes() < max_vertices:
+                    graph_pyvis.add_node(u.item)
+
+                if u.item in graph_pyvis.nodes:
+                    graph_pyvis.add_edge(v.item, u.item)
+
+            if graph_pyvis.num_nodes() >= max_vertices:
+                break
+
+        return graph_pyvis
+
     # todo: determine usefulness
     # def get_similarity_score(self, item1: Any, item2: Any) -> float:
     #     """Return the similarity score between the two given items in this graph.
