@@ -74,6 +74,7 @@ def diff_lists(us: list, them: list, to_print: bool = True, delete: bool = True)
     """
     f = open("us.txt", "w")
     g = open("them.txt", "w")
+    diffd = open("diff.txt", "w")
 
     f.write("\n".join(us))
     g.write("\n".join(them))
@@ -103,6 +104,7 @@ def diff_lists(us: list, them: list, to_print: bool = True, delete: bool = True)
         if os.path.exists("them.txt"):
             os.remove("them.txt")
 
+    diffd.write(diffs)
     return return_list
 
 
@@ -120,4 +122,4 @@ if __name__ == "__main__":
 
     # demo diff_lists
     # diff_lists([item for item in wikitext.collect_links(sample_wikitext) if item],
-    #            [l.title for l in wtp.parse(sample_wikitext).wikilinks if l.title])
+    #            [l.title for l in wtp.parse(sample_wikitext).wikilinks if l.title], delete=False)

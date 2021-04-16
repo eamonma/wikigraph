@@ -64,10 +64,10 @@ def parse_wikilink(wikilink: str) -> list:
 
         # TODO: Test if these micro-optimizations work properly (i.e. save any time)
         # If the link is a file or image
-        if wikilink[0] == "F" \
-                and wikilink[:5] == "File:" \
-                or wikilink[0] == "I" \
-                and wikilink[:6] == "Image:":
+        if wikilink[0] in {"f", "F"} \
+                and wikilink[:5].lower() == "file:" \
+                or wikilink[0] in {"i", "I"} \
+                and wikilink[:6].lower() == "image:":
             pipe_index = wikilink.find("|")
             lsbr_index = wikilink.find("[[")
             if not (lsbr_index == -1 and pipe_index == -1):
@@ -83,8 +83,8 @@ def parse_wikilink(wikilink: str) -> list:
             else:
                 parsed_sublink = wikilink
 
-            return [wikilink if pipe_index == -1 else wikilink[:pipe_index]] + \
-                   (parsed_sublink if lsbr_index != -1 and parsed_sublink else [])
+            return [wikilink if pipe_index == -1 else wikilink[:pipe_index]] +\
+                (parsed_sublink if lsbr_index != -1 and parsed_sublink else [])
 
         # === If the link is... ===
         # ...a section on different page
@@ -117,7 +117,7 @@ def char_count(wikitext: str) -> int:
     return len(wikitext) - 84 - text_start_tag_end_index
 
 
-def extract_content(wikitext: str) -> str:
+def extract_content(wikitext: str) -> int:
     """Return content between <text> tags GIVEN <page> ELEMENT
     """
     text_start_tag_end_index = text_regex.search(wikitext).end()
@@ -138,15 +138,16 @@ if __name__ == "__main__":
     # os.chdir(__file__[0:-len('wikitext.py')])
 
     # Do doctest
-    import doctest
-
-    doctest.testmod()
+    # import doctest
+    # doctest.testmod()
 
     # Open testing files... options include k.xml, ninepointthreek.xml, hundredk.xml, million.xml
     with open('data/raw/reduced/animation.xml', 'r') as reader:
         wikitext = reader.read()
 
     from experiments import versus_wtp
+    # print(collect_links(
+    #     "file:Ceres and Vesta, Moon size comparison.jpg|thumb|The largest asteroid in the previous image, [[4 Vesta|Vesta"))
 
     # print((last_revision(wikitext) - datetime(2021, 1, 1)).seconds)
 

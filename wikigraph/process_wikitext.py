@@ -13,6 +13,6 @@ def process_it(data_file: str, index_file: str, partition_file: str, edge_file: 
     p_points = partition_data.read_index(partition_file)
 
 
-if __name___ == '__main__':
+if __name__ == '__main__':
     os.chdir(__file__[0:-len('process_wikitext.py')])
     # Example runner of

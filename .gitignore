@@ -679,3 +679,7 @@ data/*
 pyta_report.html
 .vscode/
 
+diff.txt
+us.txt
+them.txt
+playground.py
