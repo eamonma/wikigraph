@@ -48,9 +48,10 @@ We will assume that we are currently in the wikigraph directory. Modify paths as
 import os
 import fileinput
 from alive_progress import alive_bar
+from tqdm import tqdm
 
-# FILE_LINE_COUNT = 1218205075
-FILE_LINE_COUNT = 98727
+FILE_LINE_COUNT = 1218205075
+# FILE_LINE_COUNT = 98727
 
 
 def create_index(filename: str) -> list[int]:
@@ -77,7 +78,11 @@ def create_index(filename: str) -> list[int]:
 def write_index(index: list[int], filename: str) -> None:
     """Write a list of integers to a file, one integer per line"""
     f = open(filename, 'w')
-    f.write('\n'.join([str(i) for i in index]))
+    # f.write('\n'.join([str(i) for i in index]))
+    print("Writing Index File...")
+    for i in tqdm(index):
+        f.write('\n' + str(i))
+
     f.close()
 
 
@@ -88,10 +93,8 @@ def read_index(index_file: str) -> list[int]:
     line_numbers = []
 
     print("Reading Index File...")
-    with alive_bar(len(line_strings)) as progressbar:
-        for s in line_strings:
-            line_numbers.append(int(s))
-            progressbar()
+    for s in tqdm(line_strings):
+        line_numbers.append(int(s))
 
     return line_numbers
 
@@ -124,12 +127,9 @@ def get_partition_points_num(num_partitions: int, index: list[int]) -> list[int]
     selected_partition_points = []
 
     print("Generating Partition Points...")
-    with alive_bar(num_partitions) as progressbar:
-        for i in range(num_partitions):
-            # Add a partition close to (just under) the approximate location
-            selected_partition_points.append(round_to_list((i + 1) * approx_partition_size, index))
-
-            progressbar()
+    for i in tqdm(range(num_partitions)):
+        # Add a partition close to (just under) the approximate location
+        selected_partition_points.append(round_to_list((i + 1) * approx_partition_size, index))
 
     # Add the last partition point
     selected_partition_points[len(selected_partition_points) - 1] = FILE_LINE_COUNT + 1
@@ -146,16 +146,13 @@ def get_partition_points_size(lines_per_partition: int, index: list[int]):
     selected_partition_points = []
 
     print("Generating Partition Points...")
-    with alive_bar(approx_num_partitions) as progressbar:
-        for i in range(approx_num_partitions):
-            # Add a partition close to (just under) the approximate location
-            if i == 0:
-                selected_partition_points.append(round_to_list(lines_per_partition, index))
-            else:
-                selected_partition_points.append(
-                    round_to_list(lines_per_partition + selected_partition_points[-1], index))
-
-            progressbar()
+    for i in tqdm(range(approx_num_partitions)):
+        # Add a partition close to (just under) the approximate location
+        if i == 0:
+            selected_partition_points.append(round_to_list(lines_per_partition, index))
+        else:
+            selected_partition_points.append(
+                round_to_list(lines_per_partition + selected_partition_points[-1], index))
 
     # Add the last partition point
     selected_partition_points.append(FILE_LINE_COUNT + 1)
@@ -181,11 +178,26 @@ def partition(filename: str, partition_points: list[int], output: str) -> None:
     current_partition = []
     n = 1
 
+    # print("Partitioning Dataset...")
+    # with tqdm(total=FILE_LINE_COUNT) as progressbar:
+    #     for line in fileinput.input([filename]):
+    #         if count in partition_points:
+    #             outfile = open(output + "-%04d" % n + '.xml', 'w')
+    #             outfile.write(''.join(current_partition))
+    #             outfile.close()
+    #
+    #             n += 1
+    #             current_partition = []
+    #
+    #         current_partition.append(line)
+    #         count += 1
+    #         progressbar.update(1)
+
     print("Partitioning Dataset...")
     with alive_bar(FILE_LINE_COUNT + 1) as progressbar:
         for line in fileinput.input([filename]):
             if count in partition_points:
-                outfile = open(output + "-%04d" % n + 'b.xml', 'w')
+                outfile = open(output + "-%04d" % n + '.xml', 'w')
                 outfile.write(''.join(current_partition))
                 outfile.close()
 
@@ -197,8 +209,56 @@ def partition(filename: str, partition_points: list[int], output: str) -> None:
             progressbar()
 
 
+def partition_on_num(data_file: str, index_file: str, num: int, out_partition_file: str,
+                     output: str) -> None:
+    """Run all the methods for partitioning the data
+
+    Example call:
+    >>> partition_on_num('../data/raw/reduced/hundredk.xml',
+    ...                  '../data/processed/wiki-index.txt',
+    ...                  10,
+    ...                  '../data/processed/partitioned/partition-index.txt',
+    ...                  '../data/processed/partitioned/hundredk', )
+    """
+    index = read_index(index_file)
+    p_points = get_partition_points_num(num, index)
+    write_index(p_points, out_partition_file)
+    partition(data_file, p_points, output)
+
+
+def partition_on_size(data_file: str, index_file: str, size: int, out_partition_file: str) -> None:
+    """Run all the methods for partitioning the data
+
+    Example call:
+    >>> partition_on_size('../data/raw/reduced/hundredk.xml',
+    ...                   '../data/processed/wiki-index.txt',
+    ...                   1000,
+    ...                   '../data/processed/partitioned/partition-index.txt',
+    ...                   '../data/processed/partitioned/hundredk', )
+    """
+    index = read_index(index_file)
+    p_points = get_partition_points_size(size, index)
+    write_index(p_points, out_partition_file)
+    partition(data_file, p_points, output)
+
+
 if __name__ == '__main__':
-    os.chdir(__file__[0:-len('partition_data.py')])
+    os.chdir(__file__[0:-len('wikigraph/partition_data.py')])
+
+    # partition_on_num('../data/raw/reduced/hundredk.xml',
+    #                  '../data/processed/wiki-index.txt',
+    #                  10,
+    #                  '../data/processed/partitioned/partition-index.txt',
+    #                  '../data/processed/partitioned/hundredk', )
+
+    # partition_on_num('../data/raw/reduced/hundredk.xml', '../data/processed/wiki-index.txt', 10, '../data/processed/partitioned/partition-index.txt', '../data/processed/partitioned/hundredk')
+
+    partition_on_num('/mnt/storage/wikigraph/enwiki-20210101-pages-articles-multistream.xml',
+                     'data/processed/wiki-index.txt',
+                     80,
+                     'data/processed/partitioned/partition-index.txt',
+                     'data/processed/partitioned/enwiki-20210101')
+
     # # Index full wikitext database
     # write_index(create_index('../data/raw/enwiki-20210101-pages-articles-multistream.xml'),
     #             '../data/processed/wiki-index.txt')
@@ -207,12 +267,13 @@ if __name__ == '__main__':
     # write_index(create_index('../data/raw/reduced/million.xml'),
     #            '../data/processed/wiki-index.txt')
 
-    # Partition smaller datasets
-    ind = read_index('../data/processed/wiki-index.txt')
-    write_index_pvn(ind, 'wiki_index.py')
+    # # Partition smaller datasets
+    # ind = read_index('../data/processed/wiki-index.txt')
 
-    # Partition based on number of partitions
+    # # Partition based on number of partitions
     # p_points = get_partition_points_num(10, ind)
+
+    # write_index('../data/processed/partition-index.txt', p_points)
 
     # # Partition based on size of partitions
     # p_points = get_partition_points_size(10000, ind)
@@ -220,7 +281,7 @@ if __name__ == '__main__':
     # partition(10, '../data/raw/reduced/million.xml', p_points,
     #           '../data/processed/partitioned/million')
     # partition('../data/raw/reduced/hundredk.xml', p_points,
-    #          '../data/processed/partitioned/hundredk')
+    #           '../data/processed/partitioned/hundredk')
 
     # # Partition full dataset
     # ind = read_index('../data/processed/wiki-index.txt')

@@ -28,11 +28,12 @@ class _Vertex:
     """
     item: Any
     neighbours: set[_Vertex]
-    redirect: str
     char_count: int
     last_edit: datetime.timedelta
+    redirect: str
 
-    def __init__(self, item: Any, char_count: int, redirect: str = "") -> None:
+    def __init__(self, item: Any, char_count: int,
+                 last_edit: datetime.timedelta, redirect: str = "") -> None:
         """Initialize a new vertex with the given item and kind.
 
         This vertex is initialized with no neighbours.
@@ -41,6 +42,7 @@ class _Vertex:
         self.neighbours = set()
         self.redirect = redirect
         self.char_count = char_count
+        self.last_edit = last_edit
 
     def degree(self) -> int:
         """Return the degree of this vertex."""
