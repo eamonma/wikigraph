@@ -130,8 +130,8 @@ def last_revision(wikitext: str) -> int:
     revision_start_index = wikitext.find("<tim")
     revision_end_index = wikitext.find("</tim", revision_start_index)
     # minus one to remove Z
-    return (datetime.fromisoformat("2021-01-01T00:01:01+00:00").replace(tzinfo=None) - \
-        datetime.fromisoformat(
+    return (datetime.fromisoformat("2021-01-01T00:01:01+00:00").replace(tzinfo=None) -
+            datetime.fromisoformat(
             wikitext[revision_start_index + 11:revision_end_index - 1].replace("Z", "+00:00")).replace(tzinfo=None)).seconds
 
 
@@ -139,14 +139,16 @@ def parse_redirect(wikitext: str) -> str:
     """Return empty string if page not redirect
     Return page to redirect
     """
-    if "<redirect" not in wikitext:
+    redirect_start_index = wikitext.find("<redirect")
+
+    # if not redirect
+    if redirect_start_index == -1:
         return ""
-    else:
-        redirect_start_index = wikitext.find("<r")
-        # get index of immediate linebreak after
-        redirect_end_index = wikitext.find("\n", redirect_start_index)
-        # `<redirect title="` is 17 characters, `" />` is 4 characters
-        return wikitext[redirect_start_index + 17: redirect_end_index - 4]
+
+    # get index of immediate linebreak after
+    redirect_end_index = wikitext.find("\n", redirect_start_index)
+    # `<redirect title="` is 17 characters, `" />` is 4 characters
+    return wikitext[redirect_start_index + 17: redirect_end_index - 4]
 
 
 def get_title(wikitext: str) -> str:
