@@ -50,8 +50,8 @@ import fileinput
 from alive_progress import alive_bar
 from tqdm import tqdm
 
-# FILE_LINE_COUNT = 1218205075
-FILE_LINE_COUNT = 98727
+FILE_LINE_COUNT = 1218205075
+# FILE_LINE_COUNT = 98727
 # FILE_LINE_COUNT = 15227431
 # FILE_LINE_COUNT = 1000001
 
@@ -96,7 +96,7 @@ def read_index(index_file: str) -> list[int]:
 
     print("Reading Index File...")
     for s in tqdm(line_strings):
-        line_numbers.append(int(s))
+        line_numbers.append(int(s.strip()))
 
     return line_numbers
 
@@ -128,7 +128,7 @@ def get_partition_points_num(num_partitions: int, index: list[int]) -> list[int]
     approx_partition_size = FILE_LINE_COUNT // num_partitions
     selected_partition_points = []
 
-    print("Generating Partition Points...")
+    print("Generating partition points...")
     for i in tqdm(range(num_partitions)):
         # Add a partition close to (just under) the approximate location
         # selected_partition_points.append(round_to_list(
@@ -155,7 +155,7 @@ def get_partition_points_size(lines_per_partition: int, index: list[int]):
     approx_num_partitions = FILE_LINE_COUNT // lines_per_partition
     selected_partition_points = []
 
-    print("Generating Partition Points...")
+    print("Generating partition points...")
     for i in tqdm(range(approx_num_partitions)):
         # Add a partition close to (just under) the approximate location
         if i == 0:
@@ -205,7 +205,7 @@ def partition(filename: str, partition_points: list[int], output: str) -> None:
     #         count += 1
     #         progressbar.update(1)
 
-    print("Partitioning Dataset...")
+    print("Partitioning dataset...")
     set_partition_points = set(partition_points)
     # with tqdm(total=FILE_LINE_COUNT) as progressbar:
     for line in fileinput.input([filename]):

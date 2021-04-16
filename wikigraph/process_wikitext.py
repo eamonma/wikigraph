@@ -102,7 +102,11 @@ def process_partition(partition_file: str, index: list[int], p_points: list[int]
 def parallel_process_partition(data_dir: str = "data/processed", partition_rel_dir: str = "partitioned") -> None:
     """Run process_partition with councurrent processes
     """
-    partitioned_files = os.listdir(f"{data_dir}/{partition_rel_dir}")
+    os.chdir(__file__[0:-len('wikigraph/process_wikitext.py')])
+
+
+    partitioned_files = [partitioned_file for partitioned_file in os.listdir(
+        f"{data_dir}/{partition_rel_dir}") if ".xml" in partitioned_file]
 
     index = partition_data.read_index(f'{data_dir}/wiki-index.txt')
     p_points = partition_data.read_index(
@@ -124,7 +128,7 @@ if __name__ == '__main__':
     os.chdir(__file__[0:-len('wikigraph/process_wikitext.py')])
     import time
 
-    parallel_process_partition("data/processed", "partitioned_2")
+    # parallel_process_partition("data/processed", "partitioned_2")
     # from experiments import versus_wtp
 
     # versus_wtp("")

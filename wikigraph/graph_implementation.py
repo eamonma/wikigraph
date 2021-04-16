@@ -218,7 +218,8 @@ if __name__ == '__main__':
     # import python_ta.contracts
     # python_ta.contracts.check_all_contracts()
 
-    os.chdir(__file__[0:-len('graph_implementation.py')])
+    os.chdir(__file__[0:-len('wikigraph/graph_implementation.py')])
+
 
     # # NOTE: These others are fine
     # import doctest
