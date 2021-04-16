@@ -127,8 +127,8 @@ def extract_content(wikitext: str) -> int:
 def last_revision(wikitext: str) -> int:
     """Return last revision between <timestamp> tags GIVEN <page> ELEMENT
     """
-    revision_start_index = wikitext.find("<tim")
-    revision_end_index = wikitext.find("</tim", revision_start_index)
+    revision_start_index = wikitext.find("<timestamp>")
+    revision_end_index = wikitext.find("</timestamp", revision_start_index)
     # time zone agnostic
     return (datetime.fromisoformat("2021-01-01T00:00:01+00:00").replace(tzinfo=None) -
             datetime.fromisoformat(
@@ -155,7 +155,7 @@ def get_title(wikitext: str) -> str:
     """Return title of <page>
     """
     # first <t of page is necessarily title
-    title_start_index = wikitext.find("<t")
+    title_start_index = wikitext.find("<title")
     # get index of immediate linebreak after
     title_end_index = wikitext.find("\n", title_start_index)
     # <title> is 7 characters, </title> is 8 characters
@@ -171,11 +171,10 @@ if __name__ == "__main__":
     # doctest.testmod()
 
     # Open testing files... options include k.xml, ninepointthreek.xml, hundredk.xml, million.xml
-    with open('data/raw/reduced/animation.xml', 'r') as reader:
+    with open('data/processed/partitioned/f.wk', 'r') as reader:
         wikitext = reader.read()
 
     from experiments import versus_wtp
-
     # print(collect_links(
     #     "file:Ceres and Vesta, Moon size comparison.jpg|thumb|The largest asteroid in the previous image, [[4 Vesta|Vesta"))
 

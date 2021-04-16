@@ -80,11 +80,8 @@ def create_index(filename: str) -> list[int]:
 def write_index(index: list[int], filename: str) -> None:
     """Write a list of integers to a file, one integer per line"""
     f = open(filename, 'w')
-    # f.write('\n'.join([str(i) for i in index]))
     print("Writing Index File...")
-    for i in tqdm(index):
-        f.write(str(i) + "\n")
-
+    f.write('\n'.join([str(i) for i in tqdm(index)]))
     f.close()
 
 
@@ -96,9 +93,10 @@ def read_index(index_file: str) -> list[int]:
 
     print("Reading Index File...")
     for s in tqdm(line_strings):
-        line_numbers.append(int(s.strip()))
+        line_numbers.append(int(s))
 
     return line_numbers
+
 
 
 def round_to_list(number: int, index: list[int]) -> int:
@@ -131,14 +129,14 @@ def get_partition_points_num(num_partitions: int, index: list[int]) -> list[int]
     print("Generating partition points...")
     for i in tqdm(range(num_partitions)):
         # Add a partition close to (just under) the approximate location
-        # selected_partition_points.append(round_to_list(
-        #     (i + 1) * approx_partition_size, index))
-        if i == 0:
-            selected_partition_points.append(
-                round_to_list(approx_partition_size, index))
-        else:
-            selected_partition_points.append(
-                round_to_list(approx_partition_size + selected_partition_points[-1], index))
+        selected_partition_points.append(round_to_list(
+            (i + 1) * approx_partition_size, index))
+        # if i == 0:
+        #     selected_partition_points.append(
+        #         round_to_list(approx_partition_size, index))
+        # else:
+            # selected_partition_points.append(
+            #     round_to_list(approx_partition_size + selected_partition_points[-1], index))
 
     # Add the last partition point
     selected_partition_points[len(
