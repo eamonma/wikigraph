@@ -130,7 +130,7 @@ def last_revision(wikitext: str) -> datetime:
     revision_start_index = wikitext.find("<timestamp")
     revision_end_index = wikitext.find("</timestamp", revision_start_index)
     # minus one to remove Z
-    return datetime.fromisoformat(wikitext[revision_start_index + 11:revision_end_index - 1])
+    return datetime.fromisoformat(wikitext[revision_start_index + 11:revision_end_index - 1].replace("Z", "+00:00"))
 
 
 if __name__ == "__main__":
