@@ -139,7 +139,7 @@ def collapse_redirects(links_file: str, info_file: str) -> dict:
             info[row[0]] = [row[2], row[3]]
 
     # Getting all of the vertices and their edges
-    links_r = open(links_rile, 'r')
+    links_r = open(links_file, 'r')
     links_rows = csv.reader(links_r, delimiter='\t')
     for row in links_rows:
         links[row[0]] = set(row[1:-1])
@@ -151,7 +151,7 @@ def collapse_redirects(links_file: str, info_file: str) -> dict:
                 element = redirects[element]
 
     # Writing to the info_file
-    info_w = open(links_file, 'w')
+    info_w = open(info_file, 'w')
     write = '\n'.join([title + '\t' + '\t'.join(info[title])
                        for title in info])
     info_w.write(write)

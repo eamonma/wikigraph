@@ -1,5 +1,7 @@
 """Graph and _Vertex implementation for use in creating the Wikipedia graph"""
 from __future__ import annotations
+
+import fileinput
 import os
 import datetime
 from typing import Any
@@ -7,6 +9,7 @@ from typing import Any
 # Make sure you've installed the necessary Python libraries (see assignment handout
 # "Installing new libraries" section)
 # Used for visualizing graphs (by convention, referred to as "nx")
+from pyvis.network import Network
 import networkx as nx
 
 
@@ -102,7 +105,7 @@ class Graph:
             v1.neighbours.add(v2)
             v2.neighbours.add(v1)
         else:
-            raise ValueError
+            pass
 
     def adjacent(self, item1: Any, item2: Any) -> bool:
         """Return whether item1 and item2 are adjacent vertices in this graph.
@@ -177,7 +180,7 @@ class Graph:
                 if graph_pyvis.num_nodes() < max_vertices:
                     graph_pyvis.add_node(u.item)
 
-                if u.item in graph_pyvis.nodes:
+                if u.item in graph_pyvis.get_nodes():
                     graph_pyvis.add_edge(v.item, u.item)
 
             if graph_pyvis.num_nodes() >= max_vertices:
@@ -209,8 +212,22 @@ class Graph:
     #     return self._vertices[item1].similarity_score(self._vertices[item2])
 
 
-def load_graph(edges_file: str, characteristics_file: str) -> Graph:
+def load_graph(links_file: str, info_file: str) -> Graph:
     """Return a graph corresponding to the save files."""
+    graph = Graph()
+
+    # Read file line by line for ram management
+    for line in fileinput.input([info_file]):
+        row = line.split('\t')
+        graph.add_vertex(row[0], row[1], row[2])
+
+    for line in fileinput.input([links_file]):
+        row = line.split('\t')
+        item1 = row[0]
+        for item2 in row[1:]:
+            graph.add_edge(item1, item2)
+
+    return graph
 
 
 if __name__ == '__main__':
@@ -219,6 +236,9 @@ if __name__ == '__main__':
     # python_ta.contracts.check_all_contracts()
 
     os.chdir(__file__[0:-len('wikigraph/graph_implementation.py')])
+
+    # g = load_graph('data/processed/graph/links-0002.tsv', 'data/processed/graph/info-0002.tsv')
+    g = load_graph('data/processed/partitioned/delete/links-0003.tsv', 'data/processed/partitioned/delete/info-0003.tsv')
 
 
     # # NOTE: These others are fine
