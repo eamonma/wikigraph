@@ -75,7 +75,7 @@ def process_partition(partition_file: str, index: list[int], p_points: list[int]
 
                 # Get a set of the links
                 links = {i.lower()
-                            for i in wikitext.collect_links(current_page)}
+                         for i in wikitext.collect_links(current_page)}
 
                 # Write a list of edges
                 g.write(title + ',' + ','.join(links).replace('\n',
@@ -104,13 +104,16 @@ def parallel_process_partition(data_dir: str = "data/processed", partition_rel_d
     """
     os.chdir(__file__[0:-len('wikigraph/process_wikitext.py')])
 
-
     partitioned_files = [partitioned_file for partitioned_file in os.listdir(
         f"{data_dir}/{partition_rel_dir}") if ".xml" in partitioned_file]
 
     index = partition_data.read_index(f'{data_dir}/wiki-index.txt')
     p_points = partition_data.read_index(
         f'{data_dir}/{partition_rel_dir}/partition-index.txt')
+
+    partitioned_files.sort()
+    print(partitioned_files)
+
 
     with concurrent.futures.ProcessPoolExecutor() as executor:
         processes = [executor.submit(process_partition, f'{data_dir}/{partition_rel_dir}/{file}',
@@ -140,8 +143,15 @@ if __name__ == '__main__':
     # f.write("yee")
     # f.close()
 
-    # process_partition('../data/processed/partitioned/enwiki-20210101-0002.xml',
-    #                   '../data/processed/wiki-index.txt',
-    #                   '../data/processed/partitioned/partition-index.txt',
-    #                   'edge.csv',
-    #                   'info.csv')
+    # index = partition_data.read_index(f'data/processed_2/wiki-index.txt')
+    # p_points = partition_data.read_index(
+    #     f'data/processed_2/partitioned_2/partition-index.txt')
+
+    parallel_process_partition("data/processed_2", "partitioned_2")
+
+    # from partition_data import partition_on_num
+    # partition_on_num('data/raw/reduced/million.xml',
+    #                  'data/processed/wiki-index.txt',
+    #                  10,
+    #                  'data/processed_2/partitioned_2/partition-index.txt',
+    #                  'data/processed_2/partitioned_2/million')

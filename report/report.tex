@@ -14,6 +14,11 @@
 % \bibliography{refs.bib}
 % \hypersetup{hidelinks}
 
+\usepackage[style=apa, backend=biber, sortcites=true, sorting=nty]{biblatex}
+\bibliography{refs.bib}
+\hypersetup{hidelinks}
+
+
 % \definecolor{bg}{HTML}{343434}
 \renewcommand\theFancyVerbLine{\small\arabic{FancyVerbLine}}
 \definecolor{bg}{HTML}{EEEEEE}
@@ -21,16 +26,15 @@
 \definecolor{blue}{HTML}{2481b3}
 \newcommand{\py}[1]{\mintinline[bgcolor=white, baselinestretch=1]{python}{#1}}
 
-\usepackage{mathtools}
 \setminted{style=friendly, bgcolor=bg, linenos, mathescape}
 \hypersetup{
     colorlinks,
-    citecolor=blue,
+    citecolor=black,
     filecolor=blue,
     linkcolor=blue,
     urlcolor=blue
 }
-
+\setmonofont{Inconsolatazi4}
 \linespread{1.33}
 
 \title{Open Secrets: Investigating systemic biases in Wikipedia, the free online encyclopedia}
@@ -42,14 +46,89 @@
 \maketitle
 \begin{multicols}{2}
     \section{Introduction}
-    etc.
-    \section{Computational overview}
-    As lazy people, we don't like to do more work than necessary. That is why we were ecstatic to find the Python library \py{wikitextparser} to do work for us---the most important being extracting links from a given article. Unfortunately, this functionality of the library was not written with performance as its highest priority. We can see experimentally that the library takes on average about 30 seconds on a modern computer to parse through an \textsc{xml} file approximately one million lines long. (Note that though the parser is written for parsing wikitext, in contrast to \textsc{xml}, the mere \emph{presence} of markup does not affect the functionality.) Extrapolating, the 1.3 billion line Wikipedia dump would take about \(1300 \cdot 30\) seconds, or under 10 hours.
+    % project description; goal, question, have question in bold, include inline references
+    % currently, this is a direct copy-paste from our initial project proposal
+    % screw this, i don't know how to make it not yell at me for having percent symbols in there
+    As a free online encyclopedia run by volunteer collaborators, edits to Wikipedia articles form the backbone of the website.
+    Without its open nature, Wikipedia would not be what it is today.
+    However, this does not guarantee greatness --- for the same reasons it is a symbol of communal knowledge and free information, Wikipedia is inherently biased.
     
-    The authors believed they could do better---and do better we did. Diving into the \href{https://github.com/5j9/wikitextparser/blob/master/wikitextparser/_wikilink.py}{code for \py{wikitextparser}}, we see the project relies on regular expressions as a primary method of string manipulation. Unfortunately, this tool falls short for large files. Instead, we decided on a hybrid approach: match all the wikilinks using a regular expression, then conduct further processing on each wikilink with string operations. Immediately, we see a significant improvement: on that same million line file, the string operation implementation takes under 1.3 seconds over a 10 run average. This is more than an order of magnitude faster than the library's implementation---about 20-23 times faster, to be precise. This allows us to reduce the projected computing time from 10 hours to about half an hour---quite the improvement!
+    Most notably, it is biased towards the countries that articles are edited most in, and the dominant cultures in those countries.
+    ``[Our] research does show that most editors to Wikipedia come from the United States and Western Europe. And, as of 2020, our survey data indicate that fewer than 1\% of Wikipedia’s editor base in the U.S. identify as Black or African American. Considering these data, we can say with certainty that we are missing important perspectives from the world that Wikipedia strives to serve.'' \parencite{Uzzell}. Alongside an abundance of information of interest to Western society, there is a distinct lack of information from and for marginalized groups.
+    
+    The coverage of knowledge is not spread evenly across all of Wikipedia's articles. It varies based on what is desired and what is available, and often, the most available information (on English Wikipedia\footnote{For the purposes of this project, only English Wikipedia was considered -- demographics and articles of interest will vary between languages, so we focused solely on English articles to avoid confusion.}) concerns men from ``developed'' countries and their interests.
+    
+    Only 17.82\% of Wikipedia's biographies are about women.
+    This isn't merely an issue of Wikipedia's editors specifically being unreliable, it is an issue of there not being reliable sources in the wider Internet available for editors to feel confident creating articles about topics like women in science \parencite{Erhart}.
+    
+    In this way, Wikipedia can be thought of as a representation of society's general knowledge base.
+    
+    Our research question is, \textbf{``How can we use connections / links between Wikipedia articles to determine areas where our collective knowledge is lacking?}
+    
+    \section{Description of Dataset(s)}
+    % name and description of ALL datasets; if you generate datasets, describe it; include format and source
+    All of the data used in this project is open and available at \href{https://en.wikipedia.org/wiki/Wikipedia:Database\_download\#Where\_do\_I\_get\_it?}{https://en.wikipedia.org/wiki/Wikipedia:Database\_download\#Where\_do\_I\_get\_it?}. \parencite{WikimediaDownloads}
+    % TODO: IS THIS THE RIGHT PAGE
+    
+    The first of the two main sources of data will be the Wikipedia pages, available \href{https://meta.wikimedia.org/wiki/Data\_dump\_torrents\#English\_Wikipedia}{here}. \parencite{DataDumpTorrents}
+    
+    One of the most recent datasets when we began this project was used (2021-01-01).
+    
+    This dataset contains every single English Wikipedia page, accurate to 2021-01-01, compiled into one \textsc{xml} file. The singular \textsc{xml} datasets was downloaded via torrent due to its large size, to help reduce server load.
+    
+    \section{Computational overview}
+    % note: only edit this if you're ready for eamon to murder you - RX
+    % describe data we're using to represent our chosen domain; 
+    As people who care about efficiency, we don't like to do more work than necessary. That is why we were ecstatic to find the Python library \py{wikitextparser} to do work for us---the most important being extracting links from a given article. Unfortunately, this functionality of the library was not written with performance as its highest priority. We can see experimentally that the library takes on average about 30 seconds on a modern computer to parse through an \textsc{xml} file approximately one million lines long. (Note that though the parser is written for parsing wikitext, in contrast to \textsc{xml}, the mere \emph{presence} of markup does not affect the functionality.) Extrapolating, the 1.3 billion line Wikipedia dump would take about \(1300 \cdot 30\) seconds, or under 10 hours.
+    
+    These authors believed they could do better---and do better they did. Diving into the \href{https://github.com/5j9/wikitextparser/blob/master/wikitextparser/_wikilink.py}{code for \py{wikitextparser}}, we see the project relies on regular expressions as a primary method of string manipulation. Unfortunately, this tool falls short for large files, and performs functionality we do not need. Instead, we decided on a hybrid approach: match all the wikilinks using a regular expression, then conduct further processing on each wikilink with string operations. Immediately, we see a significant improvement: on that same million line file, the string operation implementation takes under 1.3 seconds over a 10 run average. This is more than an order of magnitude faster than the library's implementation---about 20-23 times faster, to be precise. This allows us to reduce the projected computing time from 10 hours to about half an hour---quite the improvement!
+\end{multicols}
+\section{Instructions for Obtaining Dataset and Running Program}
+% remember: TA assumes they can do everything we need them to do starting with a laptop with just Python 3.9 installed; describe what the TA should expect to see once they run main.py -- tell what data they'll learn, what they should see, include screenshots!
+\begin{enumerate}
+    \item Clone the project from Markus.
+    \item Open the project root in the command line---paths mentioned hereafter are relative to project root. We highly recommend using a Python virtual environment: \begin{itemize}
+        \item Create a \py{venv}: \py{python -m venv venv}
+        \item On Windows cmd, run the bat script to activate the venv: \texttt{venv\textbackslash Scripts\textbackslash activate.bat}
+        \item In shell, source the venv: \texttt{source venv/bin/activate}
+    \end{itemize}
+     Install requirements using pip3: \texttt{pip3 install -r requirements.txt}
+    \item Install the project package with \py{pip3 install -e .}
+    \item If you wish to compute on the given original dataset, use your preferred BitTorrent client to obtain the file from \href{https://meta.wikimedia.org/wiki/Data_dump_torrents#English_Wikipedia}{Wikimedia's meta page}, ensuring that the file downloaded is \texttt{enwiki-20210101-pages-articles-multistream.xml.bz2 on nicdex.com (17.79 GB)}. \begin{itemize}
+        \item Uncompress the original dataset to \texttt{data/raw/enwiki-20210101-pages-articles-multistream.xml}
+    \end{itemize}
+    \item If you wish to test the program on smaller datasets, download the provided \textsc{xml} files and place them accordingly: \begin{verbatim*}
+data/raw/reduced/k.xml
+data/raw/reduced/ninepointthreek.xml
+data/raw/reduced/hundredk.xml
+data/raw/reduced/million.xml
+\end{verbatim*}
+    \item f
+    
+\end{enumerate}
+
+\begin{multicols}{2}
+    \section{Justification and Discussion of Changes}
+    % changes between proposal and final submission; based on discussions, new ideas, TA feedback
+    The TA feedback was, in polite terms, useless. A few of the provided suggestions had already been addressed in the initial project proposal. It was suggested that we reduce the size of the dataset we were working with to avoid having to work with the enormous dataset representing every single one of Wikipedia's articles, but we had to leave the dataset as it was because there was no clear way to separate out just a smaller group of articles---we would have had to find some group of articles that link only to each other and never to any articles outside of that group, and doing that manually would be incredibly time-consuming, if not impossible.
+    
+    The major change from our proposal was our choice to change the metrics we were considering to find ``under-connected" articles in the dataset. To get view counts, we would have had to download another 3.5 TB of data, which is far too much for the relatively limited applicability of this metric. Looking at how much a page is viewed might tell us how often people are searching up certain topics, but that is not necessarily specific to Wikipedia. We also decided to consider character counts instead of word counts because this was simpler to get from the raw dataset and more efficient. This would, overall, increase the base numbers we get for this metric, but higher character counts generally also mean higher word counts, so the end result (finding the shortest articles on Wikipedia) is the same.
+    
+    We also stated that we would be using the Python library \texttt{NetworkX}, but chose [PHILIP WHICH LIBRARY ARE WE USING] instead as \texttt{NetworkX} was quite slow and our dataset was quite large---prioritizing efficiency was a necessity. We neglected to use \texttt{pandas} as our method for processing the data never led to us needing it. % is this even true
+    
+    \section{Discussion}
+    % discuss, analyze, and interpret program results; include some stuff about potential further exploration
+    There is error in our results because Wikipedia by its very nature is open source and even with its guidelines and standards, there will be syntax errors and inconsistencies in articles. There are things our program simply cannot account for. However, we believe the dataset is large enough that the overall results are still worth analyzing. From the first million lines, there are 4279 articles. Within those, we have 16 incorrect links, as a result of Wikipedia editor errors. That is a 0.3\% error rate, which was not our fault to begin with.
+    
+    OUR CODE IS IMPECCABLE; PEOPLE ARE JUST DUMB.
+    
+    The results of our program show...???
+    
+    For future research, we might extend the functionality of the program to sort the articles it finds that score the lowest on a given metric by topic---i.e., when considering the articles with the lowest character counts, it might be interesting to then group those articles based on what they're about. % again, is this true? are we going to be doing this??
+    
+    % todo: add a concluding statement
 
 \end{multicols}
-
 
 \linespread{2}
 \newpage
