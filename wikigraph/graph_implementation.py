@@ -28,11 +28,12 @@ class _Vertex:
     item: Any
     neighbours: set[_Vertex]
     char_count: int
-    last_edit: datetime.timedelta
+    last_edit: int
     redirect: str
 
+    # todo: temporarily set a default value
     def __init__(self, item: Any, char_count: int,
-                 last_edit: datetime.timedelta, redirect: str = "") -> None:
+                 last_edit: int = 0, redirect: str = "") -> None:
         """Initialize a new vertex with the given item, char_count, last_edit,
         and redirect.
 
@@ -76,15 +77,15 @@ class Graph:
         """Initialize an empty graph (no vertices or edges)."""
         self._vertices = {}
 
-    # todo: we're going to need to give it more than just these attributes
-    def add_vertex(self, item: Any, word_count: int) -> None:
-        """Add a vertex with the given item and word_count to this graph.
+    def add_vertex(self, item: Any, char_count: int, last_edit: int = 0,
+                   redirect: str = "") -> None:
+        """Add a vertex with the given item and char_count to this graph.
 
         The new vertex is not adjacent to any other vertices.
         Do nothing if the given item is already in this graph.
         """
         if item not in self._vertices:
-            self._vertices[item] = _Vertex(item, word_count)
+            self._vertices[item] = _Vertex(item, char_count, last_edit)
 
     def add_edge(self, item1: Any, item2: Any) -> None:
         """Add an edge between the two vertices with the given items in this graph.
@@ -142,16 +143,16 @@ class Graph:
             raise ValueError
 
     def get_vertex_char_count(self, item: Any) -> int:
-        """Return the word count of the vertex associated with item.
+        """Return the character count of the vertex associated with item.
 
         Raise a ValueError if item does not appear as a vertex in this graph."""
         if item in self._vertices:
-            return self._vertices[item].word_count
+            return self._vertices[item].char_count
         else:
             raise ValueError
 
     def get_vertex_edit_time(self, item: Any) -> int:
-        """Return the last edit of item.
+        """Return the last_edit of item.
 
         Raise a ValueError if item does not appear as a vertex in this graph."""
         if item in self._vertices:
