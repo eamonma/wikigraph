@@ -1,9 +1,9 @@
-from wikigraph import partition_data, process_wikitext
+from wikigraph import partition_data, process_wikitext, graph_implementation
 import os
 
 
 def process_xml(xml_path: str = "data/raw/enwiki-20210101-pages-articles-multistream.xml",
-                partitions: int = 10) -> None:
+                partitions: int = 80) -> None:
     """
     Create XML index
     Create partition index
@@ -36,6 +36,21 @@ def process_xml(xml_path: str = "data/raw/enwiki-20210101-pages-articles-multist
                                     {xml_path[xml_path.rindex("/") + 1 : xml_path.rindex(".xml")]}""")
 
     process_wikitext.parallel_process_partition()
+
+    process_wikitext.concatenate_files('data/processed/graph')
+
+    process_wikitext.get_redirects('data/processed/graph/wiki-info.tsv',
+                                   'data/processed/graph/redirects.tsv')
+
+    process_wikitext.collapse_redirects('data/processed/graph/wiki-info.tsv',
+                                        'data/processed/graph/wiki-links.tsv',
+                                        'data/processed/graph/redirects.tsv',
+                                        'data/processed/graph/wiki-info-collapsed.tsv',
+                                        'data/processed/graph/wiki-links-collapsed.tsv')
+
+    g = graph_implementation.load_graph('data/processed/graph/wiki-info-collapsed.tsv', 'data/processed/graph/wiki-links-collapsed.tsv')
+    net = g.to_pyvis(10000)
+    net.show('graph.html')
 
 
 if __name__ == "__main__":
