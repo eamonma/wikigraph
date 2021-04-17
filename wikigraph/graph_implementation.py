@@ -217,8 +217,13 @@ if __name__ == '__main__':
     g = load_graph('data/processed/graph/wiki-info-collapsed.tsv',
                    'data/processed/graph/wiki-links-collapsed.tsv')
 
+
+    for v in g.get_all_vertices():
+        _ = v.set_score()
+
     from wikigraph.graph_analysis import analysis
     analysis(g, 100)
+
 
     # # NOTE: These others are fine
     # import doctest
