@@ -116,6 +116,7 @@ def process_partition(partition_file: str, index: list[int], p_points: list[int]
         # Increment the line number
         count += 1
 
+    # Close the files
     f.close()
     g.close()
 
@@ -152,56 +153,73 @@ def parallel_process_partition(data_dir: str = "data/processed",
             print(f"{f.done() and 'Done'}")
 
 
-def collapse_redirects(links_file: str, info_file: str) -> dict:
+def get_redirects(info_file: str, output: str) -> None:
+    """Get the all of the redirect vertices
+    """
+    redirect = dict()
+
+    # Getting redirects from the info_file
+    print("Getting redirects...")
+    for line in tqdm(fileinput.input(info_file, openhook=fileinput.hook_encoded("utf-8"))):
+        row = line.split('\t')
+        if row[1] != '':
+            redirect[row[0]] = row[1]
+
+    # Writing to the info_file
+    redirect_w = open(output, 'w', encoding='utf8')
+    write = '\n'.join([title + '\t' + redirect[title] for title in redirect])
+    redirect_w.write(write)
+    redirect_w.close()
+
+
+def collapse_redirects(info_file: str, links_file: str, redirect_file: str,
+                       info_file_output: str, links_file_output: str) -> None:
     """Get rid of redirect links in info_file
 
     Example Run:
     >>> collapse_redirects('data/processed/graph/wiki-info.tsv',
-    ...                    'data/processed/graph/wiki-links.tsv')
+    ...                   'data/processed/graph/wiki-links.tsv',
+    ...                   'data/processed/graph/redirect-info.tsv'
+    ...                   'data/processed/graph/wiki-info-collapsed.tsv',
+    ...                   'data/processed/graph/wiki-links-collapsed.tsv')
     """
-    redirects = dict()
-    links = dict()
-    info = dict()
+    # Getting redirect information
+    redirect = dict()
+    print("Reading redirect information...")
+    for line in tqdm(fileinput.input(redirect_file, openhook=fileinput.hook_encoded("utf-8"))):
+        row = line.split('\t')
+        redirect[row[0]] = row[1]
 
-    # Getting all the redirects
-    info_r = open(info_file, 'r')
-    info_rows = csv.reader(info_r, delimiter='\t')
-    for row in info_rows:
-        if row[1] != '':
-            redirects[row[0]] = row[1]
-        else:
-            info[row[0]] = [row[2], row[3]]
+    # Collapsing the redirects in links_w
+    links_w = open(links_file_output, 'w', encoding='utf8')
+    print("Collaping redirects in links...")
+    for line in tqdm(fileinput.input(links_file, openhook=fileinput.hook_encoded("utf-8"))):
+        row = line[:-1].split('\t')
 
-    # Getting all of the vertices and their edges
-    links_r = open(links_file, 'r')
-    links_rows = csv.reader(links_r, delimiter='\t')
-    for row in links_rows:
-        links[row[0]] = set(row[1:-1])
+        if row[0] not in redirect:
+            for i in row[1:]:
+                if i in redirect:
+                    i = redirect[i]
 
-    # Replacing redirect links with thier original
-    for key in links:
-        for element in links[key]:
-            if element in redirects:
-                element = redirects[element]
+            links_w.write('\t'.join(row) + '\n')
 
-    # Writing to the info_file
-    info_w = open(info_file, 'w')
-    write = '\n'.join([title + '\t' + '\t'.join(info[title])
-                       for title in info])
-    info_w.write(write)
-    info_w.close()
-
-    # Writing to the links_file
-    links_w = open(links_file, 'w')
-    write = '\n'.join([title + '\t' + '\t'.join(links[title])
-                       for title in links if title not in redirects])
-    links_w.write(write)
     links_w.close()
+
+    info_w = open(info_file_output, 'w', encoding='utf8')
+    print("Collaping redirects in info...")
+    for line in tqdm(fileinput.input(info_file, openhook=fileinput.hook_encoded("utf-8"))):
+        row = line.split('\t')
+
+        if row[0] not in redirect:
+            info_w.write(line)
+
+    info_w.close()
 
 
 def concatenate_files(file_locations: str,
                       out_info_file: str = 'wiki-info.tsv',
-                      out_links_files: str = 'wiki-links.tsv') -> None:
+                      out_links_files: str = 'wiki-links.tsv',
+                      delete_remnants: bool = False) -> None:
     """Concatenate the info and links files generated from the computation into one file each
 
     Example Run
@@ -247,104 +265,30 @@ def concatenate_files(file_locations: str,
             out_file.close()
         progressbar.update(1)
 
-    # Remove the left over files
-    # ONLY UNCOMMENT THIS WHEN YOU KNOW THAT EVERYTHING WORKS
-    # for i in info_files:
-    #     os.remove(i)
-    #
-    # for i in links_files:
-    #     os.remove(i)
+    if delete_remnants:
+        for i in info_files:
+            os.remove(i)
+
+        for i in links_files:
+            os.remove(i)
 
 
 if __name__ == '__main__':
     os.chdir(__file__[0:-len('wikigraph/process_wikitext.py')])
 
-    concatenate_files('data/processed/graph')
+    # NOTE: Don't have these on all the time
+    # import python_ta.contracts
+    # python_ta.contracts.check_all_contracts()
 
-    # parallel_process_partition("data/processed_2", "partitioned_2")
-    # from experiments import versus_wtp
+    # NOTE: These others are fine
+    import doctest
+    doctest.testmod()
 
-    # versus_wtp("")
-
-    # finish = time.perf_counter()
-    # print(f"{round(finish - start, 2)}")
-
-    # f = open("../data/processed/info.tsv", "a")
-    # f.write("yee")
-    # f.close()
-
-    # index = partition_data.read_index(f'data/processed_2/wiki-index.txt')
-    # p_points = partition_data.read_index(
-    #     f'data/processed_2/partitioned_2/partition-index.txt')
-
-    # partition_data.write_index(partition_data.get_partition_points_num(
-    #     80, partition_data.read_index("data/processed/wiki-index.txt")),
-    #     "data/processed/partitioned/partition-index.txt")
-
-    # partitioned_files = [partitioned_file for partitioned_file in os.listdir(
-    #     f"data/processed/partitioned") if ".xml" in partitioned_file]
-
-    # index = partition_data.read_index(f'data/processed/wiki-index.txt')
-    # p_points = partition_data.read_index(
-    #     f'data/processed/partitioned/partition-index.txt')
-
-    # partitioned_files.sort()
-    # print(partitioned_files)
-
-    # process_partition('data/processed/partitioned/enwiki-20210101-0003.xml',
-    #                   index,
-    #                   p_points,
-    #                   'data/processed/graph/links.tsv',
-    #                   'data/processed/graph/info.tsv')
-
-    # with concurrent.futures.ProcessPoolExecutor(max_workers=max_workers) as executor:
-    #     processes = [executor.submit(process_partition, f'{data_dir}/{partition_rel_dir}/{file}',
-    #                                 index,
-    #                                 p_points,
-    #                                 f'{data_dir}/graph/links.tsv',
-    #                                 f'{data_dir}/graph/info.tsv')
-    #                 for file in partitioned_files]
-
-    #     for f in concurrent.futures.as_completed(processes):
-    #         print(f"{f.done() and 'Done'}")
-
-    # from parallel_map import parallel_map
-
-    # parallel_map(
-    #     iterables=[{"partition_file": f"data/processed/partitioned/{partitioned_file}",
-    #         "index": index,
-    #         "p_points": p_points,
-    #         "links_file": "data/processed/graph/links.tsv",
-    #         "info_file": "data/processed/graph/info.tsv"
-    #       } for partitioned_file in partitioned_files],
-    #     function=process_partition,
-    #     use_kwargs=True
-    # )
-
-    # parallel_process_partition("data/processed", "partitioned", max_workers=1)
-
-    # partition_on_num('data/raw/reduced/million.xml',
-    #                  'data/processed/wiki-index.txt',
-    #                  10,
-    #                  'data/processed_2/partitioned_2/partition-index.txt',
-    #                  'data/processed_2/partitioned_2/million')
-
-    # generate = True
-
-    # if generate:
-    #     index = partition_data.read_index('data/processed/wiki-index.txt')
-    #     p_points = partition_data.read_index('data/processed/partitioned_2/partition-index.txt')
-
-    #     process_partition('data/processed/partitioned_2/million-0002.xml',
-    #                       index,
-    #                       p_points,
-    #                       'data/processed/graph/links.tsv',
-    #                       'data/processed/graph/info.tsv')
-    # else:
-    #     collapse_redirects('data/processed/links-0002.tsv', 'data/processed/info-0002.tsv')
-
-    # process_partition('../data/processed/partitioned/enwiki-20210101-0002.xml',
-    #                   '../data/processed/wiki-index.txt',
-    #                   '../data/processed/partitioned/partition-index.txt',
-    #                   'edge.tsv',
-    #                   'info.tsv')
+    import python_ta
+    python_ta.check_all(config={
+        'max-line-length': 1000,
+        'disable': ['E1136'],
+        'extra-imports': ['csv', 'networkx', 'os', 'graph_implementation'],
+        'allowed-io': ['load_review_graph'],
+        'max-nested-blocks': 4
+    })
