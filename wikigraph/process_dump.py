@@ -25,8 +25,8 @@ def process_xml(xml_path: str = "data/raw/enwiki-20210101-pages-articles-multist
     if not os.path.exists(graph_dir):
         os.mkdir(graph_dir, 0o755)
 
-    index = partition_data.create_index(xml_path)
-    partition_data.write_index(index, 'data/processed/wiki-index.txt')
+    # index = partition_data.create_index(xml_path)
+    # partition_data.write_index(index, 'data/processed/wiki-index.txt')
 
     partition_data.partition_on_num(xml_path,
                                     'data/processed/wiki-index.txt',
@@ -39,4 +39,5 @@ def process_xml(xml_path: str = "data/raw/enwiki-20210101-pages-articles-multist
 
 
 if __name__ == "__main__":
-    process_xml("data/.processed/partitioned/enwiki-20210101-0001.xml")
+    process_xml("data/raw/enwiki-20210101-pages-articles-multistream.xml")
+    # process_xml("data/.processed/partitioned/enwiki-20210101-0001.xml")

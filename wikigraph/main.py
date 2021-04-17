@@ -41,10 +41,9 @@ if __name__ == "__main__":
     p_points = partition_data.read_index(
         f'data/processed/partitioned/partition-index.txt')
 
-    import process_wikitext
+    from process_dump import process_xml
 
-    process_wikitext.process_partition(
-        "data/processed/partitioned/enwiki-20210101-0001.xml", index, p_points, "data/processed/graph/links.csv", "data/processed/graph/info.csv")
+    
 
     # process_wikitext.parallel_process_partition(
     #     data_dir="data/processed", partition_rel_dir="partitioned")
