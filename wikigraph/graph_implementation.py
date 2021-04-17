@@ -57,7 +57,7 @@ class _Vertex:
         lower last_edit = higher score,
         more neigbours = higher score,
         """
-        self.score = (self.char_count * len(self.neighbours)) / math.log(self.last_edit + 1)
+        self.score = (self.char_count * len(self.neighbours)) / math.log(self.last_edit + 10)
 
 
 class Graph:
@@ -128,6 +128,11 @@ class Graph:
         """
         return set(self._vertices.keys())
 
+    def get_all_vertex_values(self) -> set:
+        """Return a set of all vertex values in this graph.
+        """
+        return set(self._vertices.values())
+
     def get_vertex_degree(self, item: Any) -> int:
         """Return the degree of the vertex associated with item.
 
@@ -195,7 +200,7 @@ def load_graph(info_file: str, links_file: str) -> Graph:
     # Read file line by line for ram management
     for line in tqdm(fileinput.input([info_file])):
         row = line.split('\t')
-        graph.add_vertex(row[0], row[1], row[2])
+        graph.add_vertex(row[0], int(row[2]), int(row[3]))
 
     for line in tqdm(fileinput.input([links_file])):
         row = line.split('\t')
@@ -218,7 +223,7 @@ if __name__ == '__main__':
                    'data/processed/graph/wiki-links-collapsed.tsv')
 
 
-    for v in g.get_all_vertices():
+    for v in g.get_all_vertex_values():
         _ = v.set_score()
 
     from wikigraph.graph_analysis import analysis
