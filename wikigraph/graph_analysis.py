@@ -365,6 +365,118 @@ def _partition_by_degree(g: Graph, lst: list, pivot: Any) -> tuple[list, list]:
 
     return (smaller, bigger)
 
+################################################################################################
+# Score Analysis
+################################################################################################
+
+def find_smallest_score(g: Graph, n: int) -> list:
+    """Return a list of n vertices whose associated articles have the smallest scores.
+
+    Preconditions:
+        - 0 <= n <= len(g.get_all_vertices())
+    """
+    lst = list(g.get_all_vertices())
+    sorted_small = _n_smallest_scores(g, lst, n)
+    return sorted_small
+
+
+def _n_smallest_scores(g: Graph, lst: list, n: int) -> list:
+    """Return a list of n vertices in lst whose associated articles have the
+    smallest score.
+
+    Preconditions:
+        - lst contains no duplicates
+        - 0 <= n <= len(g.get_all_vertices())
+    """
+    if len(lst) < 2:
+        return lst.copy()
+    else:
+        pivot = g.get_vertex_score(lst[0])
+        smaller, bigger = _partition_score(g, lst[1:], pivot)
+
+        if len(lst) == n:
+            # if length of list is n, just return the sorted list
+            smaller_sorted = _n_smallest_scores(g, smaller, len(smaller))
+            bigger_sorted = _n_smallest_scores(g, bigger, len(bigger))
+
+            return smaller_sorted + [lst[0]] + bigger_sorted
+
+        elif len(smaller) == n - 1:
+            smaller_sorted = _sort_vertices_score(g, smaller)
+            return smaller_sorted + [lst[0]]
+
+        elif len(smaller) < n:
+            # must recurse on both smaller and bigger
+            smaller_sorted = _n_smallest_scores(g, smaller, len(smaller))
+            bigger_sorted = _n_smallest_scores(g, bigger, n - len(smaller) - 1)
+
+            return smaller_sorted + [lst[0]] + bigger_sorted
+
+        else:  # if len(smaller) > n
+            return _n_smallest_scores(g, smaller, n)
+
+
+def _sort_vertices_score(g: Graph, lst: list) -> list:
+    """Return a list of the vertices contained in lst, sorted from lowest
+    to highest character counts.
+
+    Preconditions:
+        - all items in lst are vertices in g
+    """
+    if len(lst) < 2:
+        return lst.copy()
+    else:
+        pivot = g.get_vertex_score(lst[0])
+
+        smaller, bigger = _partition_score(g, lst[1:], pivot)
+
+        sorted_smaller = _sort_vertices_score(g, smaller)
+        sorted_bigger = _sort_vertices_score(g, bigger)
+
+        # returning a list of ITEMS
+        return sorted_smaller + [lst[0]] + sorted_bigger
+
+
+def _partition_score(g: Graph, lst: list, pivot: Any) -> tuple[list, list]:
+    """Return a partition of lst with the chosen pivot.
+
+    Return two lists, where the first contains the items in lst whose scores are
+     <= pivot, and the second contains the items in lst with scores > pivot.
+    """
+    smaller = []
+    bigger = []
+
+    for item in lst:
+        if g.get_vertex_score(item) <= pivot:
+            smaller.append(item)
+        else:
+            bigger.append(item)
+
+    return (smaller, bigger)
+
+
+def analysis(graph: Graph, analysis_dir: str, n: int = 100) -> None:
+    """Run analysis in this file and export to analysis directory"""
+    old_edit_w = open(analysis_dir + 'oldest_edits.txt', 'w', encoding='utf8')
+    old_edit_w.write('\n'.join(find_oldest_edits(graph, n)))
+    old_edit_w.close()
+
+    smallest_text_w = open(analysis_dir + 'shortest_text.txt', 'w', encoding='utf8')
+    smallest_text_w.write('\n'.join(find_smallest_char_counts(graph, n)))
+    smallest_text_w.close()
+
+    smallest_text_w = open(analysis_dir + 'shortest_text.txt', 'w', encoding='utf8')
+    smallest_text_w.write('\n'.join(find_smallest_char_counts(graph, n)))
+    smallest_text_w.close()
+
+    least_links_w = open(analysis_dir + 'least_links.txt', 'w', encoding='utf8')
+    least_links_w.write('\n'.join(find_fewest_edges_no_threshold(graph, n)))
+    least_links_w.close()
+
+    lowest_score_w = open(analysis_dir + 'lowest_score.txt', 'w', encoding='utf8')
+    lowest_score_w.write('\n'.join(find_smallest_score(graph, n)))
+    lowest_score_w.close()
+
 
 if __name__ == '__main__':
     os.chdir(__file__[0:-len('wikigraph/graph_analysis.py')])

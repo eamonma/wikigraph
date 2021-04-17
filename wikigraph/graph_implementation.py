@@ -4,6 +4,7 @@ from __future__ import annotations
 import fileinput
 import os
 import datetime
+from tqdm import tqdm
 from typing import Any
 import math
 
@@ -56,7 +57,7 @@ class _Vertex:
         lower last_edit = higher score,
         more neigbours = higher score,
         """
-        self.score = (self.char_count * len(self.neighbours)) / math.log(self.last_edit)
+        self.score = (self.char_count * len(self.neighbours)) / math.log(self.last_edit + 1)
 
 
 class Graph:
@@ -154,14 +155,21 @@ class Graph:
         else:
             raise ValueError
 
+    def get_vertex_score(self, item: Any) -> int:
+        """Return the score of the vertex associated with item.
+
+        Raise a ValueError if item does not appear as a vertex in this graph."""
+        if item in self._vertices:
+            return self._vertices[item].score
+        else:
+            raise ValueError
+
     def to_pyvis(self, max_vertices: int = 5000) -> Network:
         """Convert this graph into a PyVis Network object.
 
         max_vertices specifies the maximum number of vertices that can appear in the graph.
 
-        TODO: NOTE THAT THIS DOES REQUIRE YOU TO HAVE PYVIS INSTALLED
-        FIXME: every time you run this without iPython, you get a KeyError
-        # https://towardsdatascience.com/making-network-graphs-interactive-with-python-and-pyvis-b754c22c270
+        NOTE: Running this method withough iPython may result in KeyErrors
         """
         graph_pyvis = Network()
         for v in self._vertices.values():
@@ -180,16 +188,16 @@ class Graph:
         return graph_pyvis
 
 
-def load_graph(links_file: str, info_file: str) -> Graph:
+def load_graph(info_file: str, links_file: str) -> Graph:
     """Return a graph corresponding to the save files."""
     graph = Graph()
 
     # Read file line by line for ram management
-    for line in fileinput.input([info_file]):
+    for line in tqdm(fileinput.input([info_file])):
         row = line.split('\t')
         graph.add_vertex(row[0], row[1], row[2])
 
-    for line in fileinput.input([links_file]):
+    for line in tqdm(fileinput.input([links_file])):
         row = line.split('\t')
         item1 = row[0]
         for item2 in row[1:]:
@@ -206,7 +214,11 @@ if __name__ == '__main__':
 
     os.chdir(__file__[0:-len('wikigraph/graph_implementation.py')])
 
-    # g = load_graph('data/processed/partitioned/delete/links-0003.tsv', 'data/processed/partitioned/delete/info-0003.tsv')
+    g = load_graph('data/processed/graph/wiki-info-collapsed.tsv',
+                   'data/processed/graph/wiki-links-collapsed.tsv')
+
+    from wikigraph.graph_analysis import analysis
+    analysis(g, 100)
 
     # # NOTE: These others are fine
     # import doctest
