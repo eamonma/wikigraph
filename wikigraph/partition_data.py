@@ -65,7 +65,7 @@ def create_index(filename: str) -> list[int]:
     print("Generating Index File...")
     with tqdm(total=FILE_LINE_COUNT) as progressbar:
         # Read file line by line for ram management
-        for lines in fileinput.input([filename]):
+        for lines in fileinput.input(filename, openhook=fileinput.hook_encoded("utf-8")):
             # If the line is an opening page tag, record it
             if '<page' in lines:
                 line_numbers.append(count)
@@ -189,7 +189,7 @@ def partition(filename: str, partition_points: list[int], output: str) -> None:
 
     print("Partitioning Dataset...")
     with tqdm(total=FILE_LINE_COUNT) as progressbar:
-        for line in fileinput.input([filename]):
+        for line in fileinput.input(filename, openhook=fileinput.hook_encoded("utf-8")):
             if count in partition_points:
                 outfile = open(output + "-%04d" % n + '.xml', 'w')
                 outfile.write(''.join(current_partition))
