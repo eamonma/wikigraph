@@ -27,7 +27,7 @@
 \renewcommand\theFancyVerbLine{\small\arabic{FancyVerbLine}}
 \definecolor{bg}{HTML}{EEEEEE}
 \definecolor{white}{HTML}{FFFFFF}
-\definecolor{blue}{HTML}{0068a1}
+\definecolor{blue}{HTML}{2c2c73}
 \newcommand{\py}[1]{\mintinline[bgcolor=white, baselinestretch=1]{python}{#1}}
 
 \setminted{style=friendly, bgcolor=bg, linenos, mathescape}
@@ -99,7 +99,7 @@
         \item Process the partitions. In conventional sequential processing, the advantage of partitions is shown in error resistance: if the processing fails at a given partition, the previous work is not lost. We can simply restart before the file which failed. In concurrent processing, we see the benefits manifest themselves in a stunning manner: the production of graph files from the entire eighty gigabytes takes only approximately 12 minutes. 
     \end{enumerate}
     \subsubsection{Indexing}
-    Indexing serves to mark the dividing lines for subsequent partitioning. Essentially, the alternative is to iterate through the \textsc{xml} and match \texttt{<page>} tags at runtime, so it can be advantageous for this index to be computed in advance. Then, subsequent parties doing working on the data can decide themselves where to partition based on their system and needs.
+    Indexing serves to mark the dividing lines for subsequent partitioning. Essentially, the alternative is to iterate through the \textsc{xml} and match \texttt{<mediawiki>} tags at runtime, so it can be advantageous for this index to be computed in advance. Then, subsequent parties doing working on the data can decide themselves where to partition based on their system and needs.
     The function is simple, but can be a time and headache saver. Essentially, it looks for an opening page tag in each line; if such a tag is present, then it is saved as a boundary in \texttt{line\_numbers}. We make the assumption safely because the \textsc{xml} dump is computer-generated, thus consistent, well formed, and syntactically correct in this regard.
 
     \subsubsection{Partitioning}
@@ -107,7 +107,7 @@
 
     \subsubsection{Processing}
     Processing the dataset---and by extension the partitions is run through a concurrent context manager, specifically \py{ProcessPoolExecutor}. This is a high-level library that enables the execution of asynchronous code with blocking operations \parencite{concurrent}. It differs from \py{ThreadPoolExecutor}, a similar library, in that \py{ProcessPoolExecutor} runs tasks with their own child process, while \py{ThreadPoolExecutor} runs tasks within threads in the main process \parencite{difference}. Specifically within the context managers, a process is submitted to a queue to be created for each individual partition. \py{process_partition} is called on each partition, and the results are saved to disk.
-    For each partition, two \textsc{table separated values} files, or \textsc{tsv}, are created. The first contains rows of articles in each partition and associated information such as whether or not it is a redirect, its character count, and the time delta between the last edit and 2021-01-01; the second contains rows of links each article contains. 
+    For each partition, two \textsc{tab separated values} files, or \textsc{tsv}, are created. The first contains rows of articles in each partition and associated information such as whether or not it is a redirect, its character count, and the time delta between the last edit and 2021-01-01; the second contains rows of links each article contains. 
     Finally, we collapse the redirect articles. When visiting Wikipedia, occasionally there is small text below the article title indicating that one was \emph{Redirected from \_\_\_}. These are accomplished by articles whose sole purpose is to redirect, and so we must take these into account. 
 
     \subsubsection{Extracting information from wikitext}
@@ -116,6 +116,10 @@
     Diving into the \href{https://github.com/5j9/wikitextparser/blob/master/wikitextparser/_wikilink.py}{code for \py{wikitextparser}}, we see the project relies on regular expressions as a primary method of string manipulation. Unfortunately, this tool falls short for large files, and performs functionality we do not need. Instead, we decided on a hybrid approach: match all the wikilinks using a regular expression, then conduct further processing on each wikilink with string operations. In combination with performing fewer computations, we see a significant improvement over the library: on that same million line file, the string operation implementation takes under 1.3 seconds over a 10 run average. This is more than an order of magnitude faster than the library's implementation---about 20-23 times faster, to be precise. This allows us to reduce the projected computing time for producing the graph from 10 hours to about half an hour.
 
     Subsequent information extracted from a given article's wikitext also use similar tricks of micro optimization. For instance, we notice that the length between the ending text element and the ending page element is constant. Then, we only need to find the beginning text tag. 
+
+    \subsection{Score}
+    We calculate a score for each article with the following equation, proceeding from defined attributes: \py{self.score} \\ \py{= (self.char_count * len(self.neighbours))} \\ \py{/ (math.log(self.last_edit) + 1)}
+
 % \end{multicols}
 \section{Obtaining the dataset and running the program}
 % remember: TA assumes they can do everything we need them to do starting with a laptop with just Python 3.9 installed; describe what the TA should expect to see once they run main.py -- tell what data they'll learn, what they should see, include screenshots!
@@ -127,8 +131,8 @@
         \item In shell, source the venv: \texttt{source venv/bin/activate}
     \end{itemize}
      Install requirements using pip3: \texttt{pip3 install -r requirements.txt}
-    \item Install the project package with \py{pip3 install -e .}
-    \item If you wish to compute on the given original dataset, use your preferred BitTorrent client to obtain the file from \href{https://meta.wikimedia.org/wiki/Data_dump_torrents#English_Wikipedia}{Wikimedia's meta page}, ensuring that the file downloaded is \texttt{enwiki-20210101-pages-articles-multistream.xml.bz2 on nicdex.com (17.79 GB)}. \begin{itemize}
+    \item Install the project package with ``\py{pip3 install -e .}''
+    \item Due to the impracticality of distributing a 17GB file on servers at the University of Toronto, if you wish to compute on the given original dataset, you may use your preferred BitTorrent client to obtain the file from \href{https://meta.wikimedia.org/wiki/Data_dump_torrents#English_Wikipedia}{Wikimedia's meta page}, ensuring that the file downloaded is \texttt{enwiki-20210101-pages-articles-multistream.xml.bz2 on nicdex.com (17.79 GB)}. \begin{itemize}
         \item Uncompress the original dataset to \texttt{data/raw/enwiki-20210101-pages-articles-multistream.xml}
     \end{itemize}
     \item If you wish to test the program on smaller datasets, download the provided \textsc{xml} files and place them accordingly: \begin{verbatim*}
@@ -139,14 +143,16 @@ data/raw/reduced/million.xml
 data/raw/reduced/animation.xml
 data/raw/reduced/anarchism.txt
 \end{verbatim*}
-    \item f
-    
+    Note that the first four files are produced with the shell command \texttt{head -n (\(m\) x) > \(\text{word}(m)\).xml}, where x is the original file, where m in [ 1000, 10000, 100000, 1000000 ], and \(\text{word}(m)\) is a function that maps m to the respective item in [ k, ninepointthreek, hundredk, million ]. Subsequently, \texttt{echo "</page>" >> \(\text{word}(m)\).xml} and \texttt{echo "</mediawiki>" >> \(m\).xml}. The latter two files are produced by manually extracting an \textsc{xml} page, and extracting wikitext, respectively.
+    \item If you wish to produce graphs for these truncated datasets, manually obtain the precise line count with \texttt{wc -l \(\text{word}(m)\).xml} in shell, or the appropriate tool on Windows. Then, edit the constant \py{FILE_LINE_COUNT} at the top of \texttt{wikigraph/partition\_data.py} to the number obtained.
 \end{enumerate}
+
+For best results, we strongly recommend at least 16GB of \textsc{ram} with adequate memory paging schemes set up for your operating system. 
 
 % \begin{multicols}{2}
     \section{Justification and discussion of changes}
     % changes between proposal and final submission; based on discussions, new ideas, TA feedback
-    There was little we could do with the provided TA feedback. A few of the provided suggestions had already been addressed in the initial project proposal, such as the suggestion to download and process the data once, storing it for future use to avoid having to load from this enormous dataset every time. It was also suggested that we reduce the size of the dataset we were working with to avoid having to work with the enormous dataset representing every single one of Wikipedia's articles, but we had to leave the dataset as it was because there was no clear way to separate out just a smaller group of articles---we would have had to find some group of articles that link only to each other and never to any articles outside of that group, and doing that manually would be incredibly time-consuming, if not impossible.
+    The provided teaching assistant feedback was considered carefully. A few of the provided suggestions had already been addressed in the initial project proposal, such as the suggestion to download and process the data once, storing it for future use to avoid having to load from this enormous dataset every time. It was also suggested that we reduce the size of the dataset we were working with to avoid having to work with the enormous dataset representing every single one of Wikipedia's articles; however, it is necessary to leave the dataset as it is because there was no clear way to separate out just a smaller group of articles---we would have had to find some group of articles that link only to each other and never to any articles outside of that group, and doing that manually would be incredibly time-consuming, if not impossible. Indeed, this defeats the purpose of our research question.
     
     The major change from our proposal was our choice to change the metrics we were considering to find ``under-connected" articles in the dataset. To get view counts, we would have had to download another 3.5 TB of data, which is far too much for the relatively limited applicability of this metric. Looking at how much a page is viewed might tell us how often people are searching up certain topics, but that would not necessarily provide interesting results specific to Wikipedia. We also decided to consider character counts instead of word counts because this was simpler to get from the raw data and could be done more efficiently. This would, overall, increase the base numbers we get for this metric, but higher character counts generally also mean higher word counts, so the end result (finding the shortest articles on Wikipedia) is the same.
     
@@ -154,7 +160,7 @@ data/raw/reduced/anarchism.txt
     
     \section{Discussion}
     % discuss, analyze, and interpret program results; include some stuff about potential further exploration
-    There is error in our results because Wikipedia by its very nature is open source and even with its guidelines and standards, there will be syntax errors and inconsistencies between articles. There are mistakes due to human error that our program simply cannot account for. However, we believe the dataset is large enough that the overall results are still worth analyzing. From the first million lines of the data, there are 4279 articles. Within those, we found 16 incorrect links, as a result of Wikipedia editor errors. That is a 0.3\% error rate, which was not our fault to begin with.
+    There is necessarily error in our results because Wikipedia by its very nature is open source. Even with its guidelines and standards, there will be syntax errors and inconsistencies between articles. There are mistakes caused by editor error that our program simply cannot account for. However, we believe the dataset is large enough that the overall results are still worth analyzing. From the first one million lines of the data, there are 4279 articles. Within those, we found 16 incorrect links as a result of Wikipedia editor errors--a 0.3\% error rate.
     
     % OUR CODE IS IMPECCABLE; PEOPLE ARE JUST DUMB.
     
