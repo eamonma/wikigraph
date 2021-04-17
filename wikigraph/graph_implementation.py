@@ -5,6 +5,7 @@ import fileinput
 import os
 import datetime
 from typing import Any
+import math
 
 # Make sure you've installed the necessary Python libraries (see assignment handout
 # "Installing new libraries" section)
@@ -32,19 +33,15 @@ class _Vertex:
     neighbours: set[_Vertex]
     char_count: int
     last_edit: int
-    redirect: str
+    score: float
 
-    # todo: temporarily set a default value
-    def __init__(self, item: Any, char_count: int,
-                 last_edit: int = 0, redirect: str = "") -> None:
-        """Initialize a new vertex with the given item, char_count, last_edit,
-        and redirect.
+    def __init__(self, item: Any, char_count: int, last_edit: int = 0) -> None:
+        """Initialize a new vertex with the given item, char_count, and last_edit.
 
         This vertex is initialized with no neighbours.
         """
         self.item = item
         self.neighbours = set()
-        self.redirect = redirect
         self.char_count = char_count
         self.last_edit = last_edit
 
@@ -52,19 +49,14 @@ class _Vertex:
         """Return the degree of this vertex."""
         return len(self.neighbours)
 
-    # todo: determine usefulness of this with regards to answering our research question
-    # def similarity_score(self, other: _Vertex) -> float:
-    #     """Return the similarity score between this vertex and other.
+    def set_score(self) -> int:
+        """Compute and store score:
 
-    #     See Assignment handout for definition of similarity score.
-    #     """
-    #     if not self.degree() or not other.degree():
-    #         return 0
-
-    #     top = len(self.neighbours.intersection(other.neighbours))
-    #     bottom = len(self.neighbours.union(other.neighbours))
-
-    #     return top / bottom
+        higher char count = higher score,
+        lower last_edit = higher score,
+        more neigbours = higher score,
+        """
+        self.score = (self.char_count * len(self.neighbours)) / math.log(self.last_edit)
 
 
 class Graph:
@@ -80,8 +72,7 @@ class Graph:
         """Initialize an empty graph (no vertices or edges)."""
         self._vertices = {}
 
-    def add_vertex(self, item: Any, char_count: int, last_edit: int = 0,
-                   redirect: str = "") -> None:
+    def add_vertex(self, item: Any, char_count: int, last_edit: int = 0) -> None:
         """Add a vertex with the given item and char_count to this graph.
 
         The new vertex is not adjacent to any other vertices.
@@ -188,29 +179,6 @@ class Graph:
 
         return graph_pyvis
 
-    # todo: determine usefulness
-    # def get_similarity_score(self, item1: Any, item2: Any) -> float:
-    #     """Return the similarity score between the two given items in this graph.
-
-    #     Raise a ValueError if item1 or item2 do not appear as vertices in this graph.
-
-    #     >>> g = Graph()
-    #     >>> for i in range(0, 6):
-    #     ...     g.add_vertex(str(i), kind='user')
-    #     >>> g.add_edge('0', '2')
-    #     >>> g.add_edge('0', '3')
-    #     >>> g.add_edge('0', '4')
-    #     >>> g.add_edge('1', '3')
-    #     >>> g.add_edge('1', '4')
-    #     >>> g.add_edge('1', '5')
-    #     >>> g.get_similarity_score('0', '1')
-    #     0.5
-    #     """
-    #     if item1 not in self._vertices or item2 not in self._vertices:
-    #         raise ValueError
-
-    #     return self._vertices[item1].similarity_score(self._vertices[item2])
-
 
 def load_graph(links_file: str, info_file: str) -> Graph:
     """Return a graph corresponding to the save files."""
@@ -231,15 +199,14 @@ def load_graph(links_file: str, info_file: str) -> Graph:
 
 
 if __name__ == '__main__':
+
     # NOTE: Don't have these on all the time
     # import python_ta.contracts
     # python_ta.contracts.check_all_contracts()
 
     os.chdir(__file__[0:-len('wikigraph/graph_implementation.py')])
 
-    # g = load_graph('data/processed/graph/links-0002.tsv', 'data/processed/graph/info-0002.tsv')
-    g = load_graph('data/processed/partitioned/delete/links-0003.tsv', 'data/processed/partitioned/delete/info-0003.tsv')
-
+    # g = load_graph('data/processed/partitioned/delete/links-0003.tsv', 'data/processed/partitioned/delete/info-0003.tsv')
 
     # # NOTE: These others are fine
     # import doctest

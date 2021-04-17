@@ -36,3 +36,4 @@ wikitextparser==0.47.4
 wrapt==1.12.1
 alive-progress==1.6.2
 tqdm
+shutil

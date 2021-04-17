@@ -367,11 +367,11 @@ def _partition_by_degree(g: Graph, lst: list, pivot: Any) -> tuple[list, list]:
 
 
 if __name__ == '__main__':
+    os.chdir(__file__[0:-len('wikigraph/graph_analysis.py')])
+
     # NOTE: Don't have these on all the time
     # import python_ta.contracts
     # python_ta.contracts.check_all_contracts()
-
-    os.chdir(__file__[0:-len('graph_analysis.py')])
 
     # NOTE: These others are fine
     import doctest

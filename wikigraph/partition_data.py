@@ -49,10 +49,9 @@ import os
 import fileinput
 from tqdm import tqdm
 
-FILE_LINE_COUNT = 1218205075
-# FILE_LINE_COUNT = 98727
-# FILE_LINE_COUNT = 15227431
-# FILE_LINE_COUNT = 1000001
+FILE_LINE_COUNT = 1218205075        # enwiki-20210101[...].xml
+# FILE_LINE_COUNT = 98727           # hundredk.xml
+# FILE_LINE_COUNT = 1000001         # muillion.xml
 
 
 def create_index(filename: str) -> list[int]:
@@ -239,68 +238,19 @@ def partition_on_size(data_file: str, index_file: str, size: int, out_partition_
 if __name__ == '__main__':
     os.chdir(__file__[0:-len('wikigraph/partition_data.py')])
 
-    # partition_on_num('data/processed/enwiki-20210101-0001.xml',
-    #                  'data/processed/wiki-index.txt',
-    #                  10,
-    #                  'data/processed/partition_attempt_x/partition-index.txt',
-    #                  'data/processed/partition_attempt_x/tenmil', )
+    # NOTE: Don't have these on all the time
+    # import python_ta.contracts
+    # python_ta.contracts.check_all_contracts()
 
-    # partition_on_num('data/raw/reduced/million.xml',
-    #                  'data/processed/wiki-index.txt',
-    #                  4,
-    #                  'data/processed/partitioned_4/partition-index.txt',
-    #                  'data/processed/partitioned_4/million', )
+    # NOTE: These others are fine
+    import doctest
+    doctest.testmod()
 
-    # partition_on_num('../data/raw/reduced/hundredk.xml', '../data/processed/wiki-index.txt', 10, '../data/processed/partitioned/partition-index.txt', '../data/processed/partitioned/hundredk')
-
-    # partition_on_num('/mnt/storage/wikigraph/enwiki-20210101-pages-articles-multistream.xml',
-    #                  'data/processed/wiki-index.txt',
-    #                  80,
-    #                  'data/processed/partitioned/partition-index.txt',
-    #                  'data/processed/partitioned/enwiki-20210101')
-
-    # # Index full wikitext database
-    # write_index(create_index('../data/raw/enwiki-20210101-pages-articles-multistream.xml'),
-    #             '../data/processed/wiki-index.txt')
-
-    # # Index million wikitext database
-    # write_index(create_index('../data/raw/reduced/million.xml'),
-    #            '../data/processed/wiki-index.txt')
-
-    # Partition smaller datasets
-    # ind = read_index('data/processed/wiki-index.txt')
-
-    # Partition based on number of partitions
-    # p_points = get_partition_points_num(10, ind)
-
-    # # Partition based on size of partitions
-    # p_points = get_partition_points_size(10000, ind)
-
-    # partition(10, '../data/raw/reduced/million.xml', p_points,
-    #           '../data/processed/partitioned/million')
-    # partition('../data/raw/reduced/hundredk.xml', p_points,
-    #           '../data/processed/partitioned/hundredk')
-
-    # partition_on_num('data/processed/partitioned/enwiki-20210101-0001.xml',
-    #                  'data/processed/wiki-index.txt',
-    #                  10,
-    #                  'data/processed/partitioned_3/partition-index.txt',
-    #  'data/processed/partitioned_3/enwiki')
-
-    partition_on_num('data/raw/reduced/million.xml',
-                     'data/processed/wiki-index.txt',
-                     10,
-                     'data/processed_2/partitioned/partition-index.txt',
-                     'data/processed_2/partitioned/million')
-
-    # # Partition full dataset
-    # ind = read_index('../data/processed/wiki-index.txt')
-
-    # # Partition based on number of partitions
-    # p_points = get_partition_points_num(100, ind)
-
-    # # Partition based on size of partitions
-    # p_points = get_partition_points_size(10000, ind)
-
-    # partition('../data/raw/enwiki[...].xml', p_points,
-    #           '../data/processed/partitioned/full')
+    import python_ta
+    python_ta.check_all(config={
+        'max-line-length': 1000,
+        'disable': ['E1136'],
+        'extra-imports': ['csv', 'networkx', 'os', 'graph_implementation'],
+        'allowed-io': ['load_review_graph'],
+        'max-nested-blocks': 4
+    })
