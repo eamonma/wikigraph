@@ -47,7 +47,6 @@ We will assume that we are currently in the wikigraph directory. Modify paths as
 """
 import os
 import fileinput
-from alive_progress import alive_bar
 from tqdm import tqdm
 
 FILE_LINE_COUNT = 1218205075
@@ -64,7 +63,7 @@ def create_index(filename: str) -> list[int]:
 
     # Progress bar code
     print("Generating Index File...")
-    with alive_bar(FILE_LINE_COUNT) as progressbar:
+    with tqdm(total=FILE_LINE_COUNT) as progressbar:
         # Read file line by line for ram management
         for lines in fileinput.input([filename]):
             # If the line is an opening page tag, record it
@@ -72,7 +71,7 @@ def create_index(filename: str) -> list[int]:
                 line_numbers.append(count)
             count += 1
             # Advance the progress bar
-            progressbar()
+            progressbar.update(1)
 
     return line_numbers
 
