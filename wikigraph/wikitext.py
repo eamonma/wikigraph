@@ -5,19 +5,6 @@ import timeit
 from datetime import datetime
 
 
-def extract_information_from_wikitext(wikitext: str) -> dict:
-    """Extract information from wikitext string provided. This will be things like word count, etc.
-    We can either write one function for each of them (less complex code, higher time complexity) or
-    we can write one function that will use one loop cycle to do many things, making the code less
-    complex (not asymptotically, but in the actually real running time)
-    """
-    if "<redirect" in wikitext:
-        redir_index = wikitext.find("<redirect")
-        pass
-        # todo
-    raise NotImplementedError()
-
-
 def collect_links(wikitext: str) -> list:
     """Collect links given wikitext
     Find tags containing "[[]]" and parse within it.
@@ -58,11 +45,10 @@ def parse_wikilink(wikilink: str) -> list:
     Return None if links to section within page
     """
     try:
-        # If the link is a section on the same page
-        if wikilink[0] == "#":
+        # If the link is a section on the same page or empty list
+        if not wikilink or wikilink[0] == "#":
             return []
 
-        # TODO: Test if these micro-optimizations work properly (i.e. save any time)
         # If the link is a file or image
         if wikilink[0] in {"f", "F"} \
                 and wikilink[:5].lower() == "file:" \
@@ -71,14 +57,6 @@ def parse_wikilink(wikilink: str) -> list:
             pipe_index = wikilink.find("|")
             lsbr_index = wikilink.find("[[")
             if not (lsbr_index == -1 and pipe_index == -1):
-                # TODO: Decide whether this needs to be fixed -- it works properly when called on by
-                #  runner method large method so I don't think so
-                # Maybe something is wrong -- ]] not being removed form this example:
-                # parse_wikilink('File:An écorché figure (life-size), lying prone on a table" +\
-                # " Wellcome L0020561.jpg|thumb|A dissected body, lying prone on a table, by " +\
-                # "[[Charles Landseer]]')
-                # This works for some reason, but only when you run it on everything?
-                # Not individually
                 parsed_sublink = parse_wikilink(wikilink[lsbr_index + 2:])
             else:
                 parsed_sublink = wikilink
@@ -103,7 +81,7 @@ def parse_wikilink(wikilink: str) -> list:
         # ...not renamed
         return [wikilink]
     except Exception as e:
-        print(wikilink, e)
+        pass  # 
 
 
 text_regex = re.compile("<text.*>")
@@ -154,7 +132,6 @@ def parse_redirect(wikitext: str) -> str:
 def get_title(wikitext: str) -> str:
     """Return title of <page>
     """
-    # first <t of page is necessarily title
     title_start_index = wikitext.find("<title")
     # get index of immediate linebreak after
     title_end_index = wikitext.find("\n", title_start_index)

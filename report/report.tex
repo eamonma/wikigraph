@@ -19,11 +19,15 @@
 \hypersetup{hidelinks}
 
 
+\setlength{\parindent}{1em} 
+\setlength{\leftmargini}{1em}
+\setlength{\leftmarginii}{0.75em}
+
 % \definecolor{bg}{HTML}{343434}
 \renewcommand\theFancyVerbLine{\small\arabic{FancyVerbLine}}
 \definecolor{bg}{HTML}{EEEEEE}
 \definecolor{white}{HTML}{FFFFFF}
-\definecolor{blue}{HTML}{2481b3}
+\definecolor{blue}{HTML}{0068a1}
 \newcommand{\py}[1]{\mintinline[bgcolor=white, baselinestretch=1]{python}{#1}}
 
 \setminted{style=friendly, bgcolor=bg, linenos, mathescape}
@@ -56,7 +60,9 @@
     Most notably, it is biased towards the countries that articles are edited most in, and the dominant cultures in those countries.
     ``[Our] research does show that most editors to Wikipedia come from the United States and Western Europe. And, as of 2020, our survey data indicate that fewer than 1\% of Wikipedia’s editor base in the U.S. identify as Black or African American. Considering these data, we can say with certainty that we are missing important perspectives from the world that Wikipedia strives to serve.'' \parencite{Uzzell}. Alongside an abundance of information of interest to Western society, there is a distinct lack of information from and for marginalized groups.
     
-    The coverage of knowledge is not spread evenly across all of Wikipedia's articles. It varies based on what is desired and what is available, and often, the most available information (on English Wikipedia\footnote{For the purposes of this project, only English Wikipedia was considered -- demographics and articles of interest will vary between languages, so we focused solely on English articles to avoid confusion.}) concerns men from ``developed'' countries and their interests.
+    The coverage of knowledge is not spread evenly across all of Wikipedia's articles. It varies based on what is desired and what is available, and often, the most available information (on English Wikipedia
+    % \footnote{For the purposes of this project, only English Wikipedia was considered -- demographics and articles of interest will vary between languages, so we focused solely on English articles to avoid confusion.}
+    ) concerns men from ``developed'' countries and their interests.
     
     Only 17.82\% of Wikipedia's biographies are about women.
     This isn't merely an issue of Wikipedia's editors specifically being unreliable, it is an issue of there not being reliable sources in the wider Internet available for editors to feel confident creating articles about topics like women in science \parencite{Erhart}.
@@ -65,30 +71,58 @@
     
     Our research question is, \textbf{``How can we use connections / links between Wikipedia articles to determine areas where our collective knowledge is lacking?}
     
-    \section{Description of Dataset(s)}
+    \section{Description of dataset(s)}
     % name and description of ALL datasets; if you generate datasets, describe it; include format and source
     All of the data used in this project is open and available at \href{https://en.wikipedia.org/wiki/Wikipedia:Database\_download\#Where\_do\_I\_get\_it?}{https://en.wikipedia.org/wiki/Wikipedia:Database\_download\#Where\_do\_I\_get\_it?}. \parencite{WikimediaDownloads}
     % TODO: IS THIS THE RIGHT PAGE
     
-    The first of the two main sources of data will be the Wikipedia pages, available \href{https://meta.wikimedia.org/wiki/Data\_dump\_torrents\#English\_Wikipedia}{here}. \parencite{DataDumpTorrents}
+    The sole source of data is the Wikipedia pages, available \href{https://meta.wikimedia.org/wiki/Data\_dump\_torrents\#English\_Wikipedia}{here}. \parencite{DataDumpTorrents}
     
-    One of the most recent datasets when we began this project was used (2021-01-01).
+    We used the most recent dataset available to us at the time we first began this project, from (2021-01-01).
     
-    This dataset contains every single English Wikipedia page, accurate to 2021-01-01, compiled into one \textsc{xml} file. The singular \textsc{xml} datasets was downloaded via torrent due to its large size, to help reduce server load.
+    This dataset contains every single English Wikipedia page, accurate to 2021-01-01, compiled into one \textsc{xml} file. The singular \textsc{xml} datasets were downloaded via torrent due to its large size, to help reduce server load.
     
     \section{Computational overview}
     % note: only edit this if you're ready for eamon to murder you - RX
     % describe data we're using to represent our chosen domain; 
-    As people who care about efficiency, we don't like to do more work than necessary. That is why we were ecstatic to find the Python library \py{wikitextparser} to do work for us---the most important being extracting links from a given article. Unfortunately, this functionality of the library was not written with performance as its highest priority. We can see experimentally that the library takes on average about 30 seconds on a modern computer to parse through an \textsc{xml} file approximately one million lines long. (Note that though the parser is written for parsing wikitext, in contrast to \textsc{xml}, the mere \emph{presence} of markup does not affect the functionality.) Extrapolating, the 1.3 billion line Wikipedia dump would take about \(1300 \cdot 30\) seconds, or under 10 hours.
+    \subsection{The data}
+    The essence of the Web is captured in this dataset---pages identified with uniform recourse locators, interconnected with hyperlinks within the pages. This structure naturally lends itself to the format of a graph: the very concept of a network \emph{is} a graph. Then, it is entirely instinctive to represent a website who is---by popular perception---a rabbit hole as a graph: its interconnected articles are the nodes of this graph, with edges---hyperlinks---connecting them. 
+    On a more abstract note, knowledge is inherently connected in graph-like structures with varying intensity. Perhaps elementary algebra is a necessary prerequisite for the study of calculus, and perhaps the invention of ice cream is connected to the early life of Leonardo DiCaprio. No matter where we look, we can almost always find connections among pieces of knowledge.
+    Therefore, it is sensible to represent the biggest open compilation of human knowledge as a graph. To limit complexity, we restrict our exploration to English Wikipedia. 
+
+    \subsection{The processing}
+    The overarching goal here is to build a graph of articles on Wikipedia, then perform analyses. The immensity of the dataset---over 81 gigabytes uncompressed---poses a challenge that would otherwise not be present with a smaller dataset. To perform useful analyses with reasonable computing times, we break the data transformation of the large \textsc{xml} file into small steps: \begin{enumerate}
+        \item Create an index of line numbers of the boundary of the articles. We save this index after creation, as the generation process takes approximately thirty minutes on a modern computer.
+        \item Partition the large \textsc{xml} into smaller subsets. We partitioned the file into 80 partitions, though the number of choice can be further fine-tuned. This has a number of advantages, notably the ability to parallelize the processing of the files. \begin{itemize}
+            \item To partition the large file, we generate a list of partition points. This is achieved by splitting the file at roughly equal line numbers, at the boundary between pages.
+        \end{itemize}
+        \item Process the partitions. In conventional sequential processing, the advantage of partitions is shown in error resistance: if the processing fails at a given partition, the previous work is not lost. We can simply restart before the file which failed. In concurrent processing, we see the benefits manifest themselves in a stunning manner: the production of graph files from the entire eighty gigabytes takes only approximately 12 minutes. 
+    \end{enumerate}
+    \subsubsection{Indexing}
+    Indexing serves to mark the dividing lines for subsequent partitioning. Essentially, the alternative is to iterate through the \textsc{xml} and match \texttt{<page>} tags at runtime, so it can be advantageous for this index to be computed in advance. Then, subsequent parties doing working on the data can decide themselves where to partition based on their system and needs.
+    The function is simple, but can be a time and headache saver. Essentially, it looks for an opening page tag in each line; if such a tag is present, then it is saved as a boundary in \texttt{line\_numbers}. We make the assumption safely because the \textsc{xml} dump is computer-generated, thus consistent, well formed, and syntactically correct in this regard.
+
+    \subsubsection{Partitioning}
+    Partitioning serves to allow concurrency in the program, greatly speeding up practical running time of analysis functions on modern operating systems and \textsc{cpu}s which support concurrent processing. Before partitioning, we produce a list of numbers at which the file is split. The partitions are produced by iterating through the master \textsc{xml} file, incrementing a line counter, accumulating lines, and writing accumulated lines when a partition point is reached.
+
+    \subsubsection{Processing}
+    Processing the dataset---and by extension the partitions is run through a concurrent context manager, specifically \py{ProcessPoolExecutor}. This is a high-level library that enables the execution of asynchronous code with blocking operations \parencite{concurrent}. It differs from \py{ThreadPoolExecutor}, a similar library, in that \py{ProcessPoolExecutor} runs tasks with their own child process, while \py{ThreadPoolExecutor} runs tasks within threads in the main process \parencite{difference}. Specifically within the context managers, a process is submitted to a queue to be created for each individual partition. \py{process_partition} is called on each partition, and the results are saved to disk.
+    For each partition, two \textsc{table separated values} files, or \textsc{tsv}, are created. The first contains rows of articles in each partition and associated information such as whether or not it is a redirect, its character count, and the time delta between the last edit and 2021-01-01; the second contains rows of links each article contains. 
+    Finally, we collapse the redirect articles. When visiting Wikipedia, occasionally there is small text below the article title indicating that one was \emph{Redirected from \_\_\_}. These are accomplished by articles whose sole purpose is to redirect, and so we must take these into account. 
+
+    \subsubsection{Extracting information from wikitext}
+    We saw experimentally that an available library takes on average about 30 seconds on a modern computer to parse through an \textsc{xml} file approximately one million lines long. (Note that though the parser is written for parsing wikitext, in contrast to \textsc{xml}, the mere \emph{presence} of markup does not affect the functionality.) Extrapolating, the 1.3 billion line Wikipedia dump would take about \(1300 \cdot 30\) seconds, or under 10 hours.
     
-    These authors believed they could do better---and do better they did. Diving into the \href{https://github.com/5j9/wikitextparser/blob/master/wikitextparser/_wikilink.py}{code for \py{wikitextparser}}, we see the project relies on regular expressions as a primary method of string manipulation. Unfortunately, this tool falls short for large files, and performs functionality we do not need. Instead, we decided on a hybrid approach: match all the wikilinks using a regular expression, then conduct further processing on each wikilink with string operations. Immediately, we see a significant improvement: on that same million line file, the string operation implementation takes under 1.3 seconds over a 10 run average. This is more than an order of magnitude faster than the library's implementation---about 20-23 times faster, to be precise. This allows us to reduce the projected computing time from 10 hours to about half an hour---quite the improvement!
-\end{multicols}
-\section{Instructions for Obtaining Dataset and Running Program}
+    Diving into the \href{https://github.com/5j9/wikitextparser/blob/master/wikitextparser/_wikilink.py}{code for \py{wikitextparser}}, we see the project relies on regular expressions as a primary method of string manipulation. Unfortunately, this tool falls short for large files, and performs functionality we do not need. Instead, we decided on a hybrid approach: match all the wikilinks using a regular expression, then conduct further processing on each wikilink with string operations. In combination with performing fewer computations, we see a significant improvement over the library: on that same million line file, the string operation implementation takes under 1.3 seconds over a 10 run average. This is more than an order of magnitude faster than the library's implementation---about 20-23 times faster, to be precise. This allows us to reduce the projected computing time for producing the graph from 10 hours to about half an hour.
+
+    Subsequent information extracted from a given article's wikitext also use similar tricks of micro optimization. For instance, we notice that the length between the ending text element and the ending page element is constant. Then, we only need to find the beginning text tag. 
+% \end{multicols}
+\section{Obtaining the dataset and running the program}
 % remember: TA assumes they can do everything we need them to do starting with a laptop with just Python 3.9 installed; describe what the TA should expect to see once they run main.py -- tell what data they'll learn, what they should see, include screenshots!
 \begin{enumerate}
     \item Clone the project from Markus.
     \item Open the project root in the command line---paths mentioned hereafter are relative to project root. We highly recommend using a Python virtual environment: \begin{itemize}
-        \item Create a \py{venv}: \py{python -m venv venv}
+        \item Create a venv: \py{python -m venv venv}
         \item On Windows cmd, run the bat script to activate the venv: \texttt{venv\textbackslash Scripts\textbackslash activate.bat}
         \item In shell, source the venv: \texttt{source venv/bin/activate}
     \end{itemize}
@@ -102,25 +136,27 @@ data/raw/reduced/k.xml
 data/raw/reduced/ninepointthreek.xml
 data/raw/reduced/hundredk.xml
 data/raw/reduced/million.xml
+data/raw/reduced/animation.xml
+data/raw/reduced/anarchism.txt
 \end{verbatim*}
     \item f
     
 \end{enumerate}
 
-\begin{multicols}{2}
-    \section{Justification and Discussion of Changes}
+% \begin{multicols}{2}
+    \section{Justification and discussion of changes}
     % changes between proposal and final submission; based on discussions, new ideas, TA feedback
-    The TA feedback was, in polite terms, useless. A few of the provided suggestions had already been addressed in the initial project proposal. It was suggested that we reduce the size of the dataset we were working with to avoid having to work with the enormous dataset representing every single one of Wikipedia's articles, but we had to leave the dataset as it was because there was no clear way to separate out just a smaller group of articles---we would have had to find some group of articles that link only to each other and never to any articles outside of that group, and doing that manually would be incredibly time-consuming, if not impossible.
+    There was little we could do with the provided TA feedback. A few of the provided suggestions had already been addressed in the initial project proposal, such as the suggestion to download and process the data once, storing it for future use to avoid having to load from this enormous dataset every time. It was also suggested that we reduce the size of the dataset we were working with to avoid having to work with the enormous dataset representing every single one of Wikipedia's articles, but we had to leave the dataset as it was because there was no clear way to separate out just a smaller group of articles---we would have had to find some group of articles that link only to each other and never to any articles outside of that group, and doing that manually would be incredibly time-consuming, if not impossible.
     
-    The major change from our proposal was our choice to change the metrics we were considering to find ``under-connected" articles in the dataset. To get view counts, we would have had to download another 3.5 TB of data, which is far too much for the relatively limited applicability of this metric. Looking at how much a page is viewed might tell us how often people are searching up certain topics, but that is not necessarily specific to Wikipedia. We also decided to consider character counts instead of word counts because this was simpler to get from the raw dataset and more efficient. This would, overall, increase the base numbers we get for this metric, but higher character counts generally also mean higher word counts, so the end result (finding the shortest articles on Wikipedia) is the same.
+    The major change from our proposal was our choice to change the metrics we were considering to find ``under-connected" articles in the dataset. To get view counts, we would have had to download another 3.5 TB of data, which is far too much for the relatively limited applicability of this metric. Looking at how much a page is viewed might tell us how often people are searching up certain topics, but that would not necessarily provide interesting results specific to Wikipedia. We also decided to consider character counts instead of word counts because this was simpler to get from the raw data and could be done more efficiently. This would, overall, increase the base numbers we get for this metric, but higher character counts generally also mean higher word counts, so the end result (finding the shortest articles on Wikipedia) is the same.
     
-    We also stated that we would be using the Python library \texttt{NetworkX}, but chose [PHILIP WHICH LIBRARY ARE WE USING] instead as \texttt{NetworkX} was quite slow and our dataset was quite large---prioritizing efficiency was a necessity. We neglected to use \texttt{pandas} as our method for processing the data never led to us needing it. % is this even true
+    We also stated that we would be using the Python library \texttt{NetworkX}, but did not use it in the end as \texttt{NetworkX} was quite slow and our dataset was quite large---prioritizing efficiency was a necessity. We neglected to use \texttt{pandas} as our method for processing the data never led to us needing it. The new library we chose to visualize data with was \texttt{Pyvis}. While it is not exceptionally fast, it does provide a loading screen and somewhat more visually appealing interactive windows for the user to look at. We would have liked to find a faster library for visualization, but finding one for Python was extremely difficult.
     
     \section{Discussion}
     % discuss, analyze, and interpret program results; include some stuff about potential further exploration
-    There is error in our results because Wikipedia by its very nature is open source and even with its guidelines and standards, there will be syntax errors and inconsistencies in articles. There are things our program simply cannot account for. However, we believe the dataset is large enough that the overall results are still worth analyzing. From the first million lines, there are 4279 articles. Within those, we have 16 incorrect links, as a result of Wikipedia editor errors. That is a 0.3\% error rate, which was not our fault to begin with.
+    There is error in our results because Wikipedia by its very nature is open source and even with its guidelines and standards, there will be syntax errors and inconsistencies between articles. There are mistakes due to human error that our program simply cannot account for. However, we believe the dataset is large enough that the overall results are still worth analyzing. From the first million lines of the data, there are 4279 articles. Within those, we found 16 incorrect links, as a result of Wikipedia editor errors. That is a 0.3\% error rate, which was not our fault to begin with.
     
-    OUR CODE IS IMPECCABLE; PEOPLE ARE JUST DUMB.
+    % OUR CODE IS IMPECCABLE; PEOPLE ARE JUST DUMB.
     
     The results of our program show...???
     
@@ -132,7 +168,7 @@ data/raw/reduced/million.xml
 
 \linespread{2}
 \newpage
-% \nocite{*}
-% \printbibliography[title={\centering References}]
+\nocite{*}
+\printbibliography[title={\centering References}]
 
 \end{document}

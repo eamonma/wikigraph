@@ -259,7 +259,9 @@ def concatenate_files(file_locations: str,
 if __name__ == '__main__':
     os.chdir(__file__[0:-len('wikigraph/process_wikitext.py')])
 
-    concatenate_files('data/processed/graph')
+    # concatenate_files('data/processed/graph')
+
+    collapse_redirects("data/processed/graph/wiki-links.tsv", "data/processed/graph/wiki-info.tsv")
 
     # parallel_process_partition("data/processed_2", "partitioned_2")
     # from experiments import versus_wtp
