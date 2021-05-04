@@ -19,7 +19,7 @@
   -----
 
 * To-do list
-** Dataset processing [15/18]
+** Dataset processing [18/18]
 - [X] Lay out computation plan
 - [X] File structure guidlines for consistent formatting
 - [X] Add ~Graph~ and ~_Vertex~ implementations
@@ -33,27 +33,26 @@
 - [X] Implement experiment to test practical running time
 - [X] Implement experiment to test practical difference between collect_links and wtp
 - [X] Implement tests wikitext functions
-- [-] Create a load_graph() function that will load a graph from that stored format
-- [ ] Actually do the processing (Test on a smaller dataset first)
+- [X] Create a load_graph() function that will load a graph from that stored format
+- [X] Actually do the processing (Test on a smaller dataset first)
 - [X] Develop/find and program algorithm(s) to search for the vertices with the least edges
 - [X] Implement function for getting vertices with the smallest word counts
-- [-] Implement function(s) for looking at time since last revision
-** Visualization [0/3]
-- [-] Figure out another library to use (~networkx~ is slow for large graphs)
-- [ ] Write the implementation
-- [ ] Allow for information about the page on hover (maybe using the ~wikipedia~ library with some caching?). If not the wikipedia library, then we use the information that we already have about the vertex.
-** Analytics [1/2]
+- [X] Implement function(s) for looking at time since last revision
+** Visualization [2/3]
+- [X] Figure out another library to use (~networkx~ is slow for large graphs)
+- [X] Write the implementation
+** Analytics [2/2]
 - [X] Develop/find and program an algorithm to search for the vertices with the least edges (and other criteria that we look for which will be decided upon later)
-- [-] Look at pages that we know to be underrepresented and look at the trends in them, then search for those in other pages.
-** Project Report [0/8]
-- [-] Introduction
-- [-] Computational Overview (Methods)
-- [ ] Instructions
-- [ ] Analysis
-- [ ] Discussion
-- [ ] Conclusion
-- [ ] References (Just add as we go)
-- [ ] Justify changes
+- [X] Look at pages that we know to be underrepresented and look at the trends in them, then search for those in other pages.
+** Project Report [8/8]
+- [X] Introduction
+- [X] Computational Overview (Methods)
+- [X] Instructions
+- [X] Analysis
+- [X] Discussion
+- [X] Conclusion
+- [X] References (Just add as we go)
+- [X] Justify changes
 
 -----
 -----
@@ -66,7 +65,7 @@
 - [X] Implement experiment to test practical running time
 - [X] Implement experiment to test practical difference between collect_links and wtp
 - [X] Implement tests wikitext functions
-** Hisbaan [7/8]
+** Hisbaan [8/8]
 - [X] Add ~Graph~ and ~_Vertex~ implementations
 - [X] Figure out which database we're going to use and how to use it (SQL?)
 - [X] Lay out computation plan
@@ -74,15 +73,15 @@
 - [X] Figure out a file format that we will use for storing processes graphs
 - [X] Get the partition indexes
 - [X] Partition the dataest into smaller pieces
-- [-] Create a load_graph() function that will load a graph from that stored format
+- [X] Create a load_graph() function that will load a graph from that stored format
 ** Philip [0/2]
 - [-] Report introduction
 - [-] Scouting new visualization library 
-** Rachel [2/4]
+** Rachel [4/4]
 - [X] Develop/find and program algorithm(s) to search for the vertices with the least edges
 - [X] Implement function for getting vertices with the smallest word counts
-- [-] Implement function(s) for looking at time since last revision
-- [-] Look at pages that we know to be underrepresented and look at the trends in them, then search for those in other pages.
+- [X] Implement function(s) for looking at time since last revision
+- [X] Look at pages that we know to be underrepresented and look at the trends in them, then search for those in other pages.
 
 -----
 -----
@@ -149,10 +148,10 @@ All python files here will need to include the following
 import os  # Toward the top of the file
 
 if __name__ == '__main__':
-    os.chdir(__file__[0:-len('name of file')])
+    os.chdir(__file__[0:-len('wikigraph/name of file')])
 #+end_src
 
-This code ensures that the code runs relative to the src directory, no matter where you execute it from. This smooths out some differences between vscode and pycharm/terminal python. I know that some of our TAs use vscode so this is NECESSARY.
+This code ensures that the code runs relative to the root directory, no matter where you execute it from. This smooths out some differences between vscode and pycharm/terminal python. I know that some of our TAs use vscode so this is NECESSARY.
 
 We should also make sure to document our code very well.
 
