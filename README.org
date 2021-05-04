@@ -1,12 +1,10 @@
-#+TITLE: Bruh
+#+TITLE: Wikgraph
 
-# Just a little todo list so that we can work on things at times outside of the times when we meet up. Assign yourself things here and then we can work on our own tasks, and mark them off from the main list once they're done.
+This project, initially started as an end-of-year project for CSC111 at UofT, is focused on finding gaps in the knowledge of Wikipedia. The information found on Wikipedia can be used as a microcosm for the greater collective human knowledge. Finding gaps or underdeveloped areas in this will give us directions that we should explore as a society.
 
-# - [ ] This is an uncompleted task
-# - [-] This is a task that is in progress
-# - [X] This is a completed task
+This project entails running data analysis on the entire [[https://meta.wikimedia.org/wiki/Data_dump_torrents#English_Wikipedia][wikipedia dataset]] which is, by nature, very large. This means that running the computations on the dataset will require sufficient processing power and memory (minimum 16 GB with paging scheme such as a swapfile or swap partition). More detailed instructions can be found in the [[report/report.pdf][project report]].
 
-** Dev instructions (from project root)
+* Dev instructions (from project root)
 1. Create a venv: ~python -m venv venv~ and enter the venv:
   + ~source venv/bin/activate~ on Unix
   + ~venv\Scripts\activate.bat~ on Windows
@@ -14,98 +12,6 @@
 3. Install local package: ~pip install -e .~
 4. Place data files in respective locations in ~data/~
 5. Run tests: ~pytest -v~
-
-  -----
-  -----
-
-* To-do list
-** Dataset processing [18/18]
-- [X] Lay out computation plan
-- [X] File structure guidlines for consistent formatting
-- [X] Add ~Graph~ and ~_Vertex~ implementations
-- [X] Figure out which database we're going to use and how to use it (SQL?)
-- [X] Figure out a file format that we will use for storing processes graphs
-- [X] Get the partition indexes
-- [X] Partition the dataest into smaller pieces
-- [X] Implement wikilink parser
-- [X] Implement wikitext count char
-- [X] Implement wikitext get last revision
-- [X] Implement experiment to test practical running time
-- [X] Implement experiment to test practical difference between collect_links and wtp
-- [X] Implement tests wikitext functions
-- [X] Create a load_graph() function that will load a graph from that stored format
-- [X] Actually do the processing (Test on a smaller dataset first)
-- [X] Develop/find and program algorithm(s) to search for the vertices with the least edges
-- [X] Implement function for getting vertices with the smallest word counts
-- [X] Implement function(s) for looking at time since last revision
-** Visualization [2/3]
-- [X] Figure out another library to use (~networkx~ is slow for large graphs)
-- [X] Write the implementation
-** Analytics [2/2]
-- [X] Develop/find and program an algorithm to search for the vertices with the least edges (and other criteria that we look for which will be decided upon later)
-- [X] Look at pages that we know to be underrepresented and look at the trends in them, then search for those in other pages.
-** Project Report [8/8]
-- [X] Introduction
-- [X] Computational Overview (Methods)
-- [X] Instructions
-- [X] Analysis
-- [X] Discussion
-- [X] Conclusion
-- [X] References (Just add as we go)
-- [X] Justify changes
-
------
------
-
-* Group Members
-** Eamon [6/6]
-- [X] Implement wikilink parser
-- [X] Implement wikitext count char
-- [X] Implement wikitext get last revision
-- [X] Implement experiment to test practical running time
-- [X] Implement experiment to test practical difference between collect_links and wtp
-- [X] Implement tests wikitext functions
-** Hisbaan [8/8]
-- [X] Add ~Graph~ and ~_Vertex~ implementations
-- [X] Figure out which database we're going to use and how to use it (SQL?)
-- [X] Lay out computation plan
-- [X] File structure guidlines for consistent formatting
-- [X] Figure out a file format that we will use for storing processes graphs
-- [X] Get the partition indexes
-- [X] Partition the dataest into smaller pieces
-- [X] Create a load_graph() function that will load a graph from that stored format
-** Philip [0/2]
-- [-] Report introduction
-- [-] Scouting new visualization library 
-** Rachel [4/4]
-- [X] Develop/find and program algorithm(s) to search for the vertices with the least edges
-- [X] Implement function for getting vertices with the smallest word counts
-- [X] Implement function(s) for looking at time since last revision
-- [X] Look at pages that we know to be underrepresented and look at the trends in them, then search for those in other pages.
-
------
------
-
-* Broad strokes overview of computational plan
-- Split the dataset up into multiple datasets. We ensure that the division does not split up one page into two datasets.
-- Parse each part of this dataset in parallel. For each page, we extract...
-  + All of the edges that it possesses.
-  + The word count of the article.
-  + The last edit (if this is accurate).
-  + anything else that we can pull from the xml.
-- Merge the restuls from the parallel operations.
-- Use this extracted information to create a graph object -- a loader method like the one that we did for graphs and weighted graphs in A3.
-- Find some articles that we know are lacking in content/research.
-- Find common traits of these articles. Also include custom characteristics that we are sure are present in lacking articles.
-- Use some sort of graph searching algorithm to find all the other articles that match these characteristics.
-- Visualize this graph:
-  + Use some sort of clustering algorithm. Can we do anything with this? Will a node that is in a cluster be, on average, more fleshed out?
-  + Show the graphs that are not well represented as another colour.
-  + Maybe show statistics like the title, word count, degree, etc on hover.
-- We're done!
-
------
------
 
 * File Structure: IMPORTANT
 
@@ -159,85 +65,169 @@ We should also make sure to document our code very well.
 
 This directory is where we will put unit tests but it is also okay to have random testing for other things. Try to make sure that your code is as clean as possible when you're pushing things.
 
------
------
 
-* Notes
-** Creating Graph
-- Initialize all the vertices, then all the edges because it's not organized in an orderly way (like the reviews thing where one dataset could only link to a member of the other)
-** Finding Links
-*** Initial impresssions
-- Everything inside of ~[[]]~ is a link.
-- Anything after a ~|~, we can ignore.
-- Some issues with brackets (e.g. ~kingdom (biology)~ redirects to Biological Kingdom, ~Wikipedia:Style~)
-- don't use wikitextparser library because that's where most of the complexity from the project comes from so we should probably do it ourselves
-- Don't use regex --- it's slow as shit
-*** How to do
-- Look for a double open brace (~[[~)
-- If a page contains ~<redirect title = "Something Here" />~, then we can label it a redirect with an instance attribute when we add the vertex to the graph and then, we will just redirect to the page that it wants to be redirected to when it wants to be
-  + If a page is a redirect, then we don't collect information about it
-** Saving graph
-- Save edges something like
-  #+begin_src python
-dictionary = {
-    vertex1: {edges1},
-    vertex2: {edges2},
-    vertex2: {edges3}
-}
-  #+end_src
-- Save the information about each vertex something like
-  #+begin_src csv
-vertex1,redirects_to,charcount1,otherthings1
-vertex2,redirects_to,charcount2,otherthings2
-vertex3,redirects_to,charcount3,otherthings3
-  #+end_src
-- Save all the information in ram first, then write to file after all the processing is done. This will be significantly faster
-- This redirects_to will be an empty column if it is not a redirect and it will contain the name of the vertex that it redirects to if it redirects to a vertex. In the second case (it is a redirect) the other columns will be empty or 0 or whatever
-** Metrics
-- Number of edges (links to page, and pages that it links to? Maybe only one)
-- Char count
-- Delta between the first of january 2021 and the timestamp (last edit)
-- Number of citations (count ~{{cite~)
-** Visualization
-*** Possible Libraries
-- Pygraphviz requires a C / C++ compiler
-- Zen is allegedly a faster thing than Networkx but its website is nonfunctional
-- graph-tool is faster than Networkx (multiple sources claim this) but requires either installing docker or otherwise doing weird non-Pycharm stuff that our TAs might not be willing to do
-- snap.py allegedly claims to be good for analysing big networks but the tutorial says the visualization functionality should only be used for small graphs --- it uses Graphviz to do this
-- PyVis can directly be installed in PyCharm, allows creation of interactive graphs, may not actually be faster than Networkx though
+# * Notes
+# ** Creating Graph
+# - Initialize all the vertices, then all the edges because it's not organized in an orderly way (like the reviews thing where one dataset could only link to a member of the other)
+# ** Finding Links
+# *** Initial impresssions
+# - Everything inside of ~[[]]~ is a link.
+# - Anything after a ~|~, we can ignore.
+# - Some issues with brackets (e.g. ~kingdom (biology)~ redirects to Biological Kingdom, ~Wikipedia:Style~)
+# - don't use wikitextparser library because that's where most of the complexity from the project comes from so we should probably do it ourselves
+# - Don't use regex --- it's slow as shit
+# *** How to do
+# - Look for a double open brace (~[[~)
+# - If a page contains ~<redirect title = "Something Here" />~, then we can label it a redirect with an instance attribute when we add the vertex to the graph and then, we will just redirect to the page that it wants to be redirected to when it wants to be
+#   + If a page is a redirect, then we don't collect information about it
+# ** Saving graph
+# - Save edges something like
+#   #+begin_src python
+# dictionary = {
+#     vertex1: {edges1},
+#     vertex2: {edges2},
+#     vertex2: {edges3}
+# }
+#   #+end_src
+# - Save the information about each vertex something like
+#   #+begin_src csv
+# vertex1,redirects_to,charcount1,otherthings1
+# vertex2,redirects_to,charcount2,otherthings2
+# vertex3,redirects_to,charcount3,otherthings3
+#   #+end_src
+# - Save all the information in ram first, then write to file after all the processing is done. This will be significantly faster
+# - This redirects_to will be an empty column if it is not a redirect and it will contain the name of the vertex that it redirects to if it redirects to a vertex. In the second case (it is a redirect) the other columns will be empty or 0 or whatever
+# ** Metrics
+# - Number of edges (links to page, and pages that it links to? Maybe only one)
+# - Char count
+# - Delta between the first of january 2021 and the timestamp (last edit)
+# - Number of citations (count ~{{cite~)
+# ** Visualization
+# *** Possible Libraries
+# - Pygraphviz requires a C / C++ compiler
+# - Zen is allegedly a faster thing than Networkx but its website is nonfunctional
+# - graph-tool is faster than Networkx (multiple sources claim this) but requires either installing docker or otherwise doing weird non-Pycharm stuff that our TAs might not be willing to do
+# - snap.py allegedly claims to be good for analysing big networks but the tutorial says the visualization functionality should only be used for small graphs --- it uses Graphviz to do this
+# - PyVis can directly be installed in PyCharm, allows creation of interactive graphs, may not actually be faster than Networkx though
 
-  from some comments online, "if the graph is too big Pyvis will re-create the graph after altering the data, and for that it has to load it all over again (which could take some time). I think there is no work-around over this particular problem, as it is in the esence of the package"
-  + Just a for whoever wrote this, you don't install something in PyCharm. PyCharm uses the pip package manager to install it. Anything that is pycharm specific is a no-no for us. We don't know what ide our TAs are going to be using so we don't want to do anything that is locked down. PyVis works as it's not pycharm specific but just be weary of that.
+#   from some comments online, "if the graph is too big Pyvis will re-create the graph after altering the data, and for that it has to load it all over again (which could take some time). I think there is no work-around over this particular problem, as it is in the esence of the package"
+#   + Just a for whoever wrote this, you don't install something in PyCharm. PyCharm uses the pip package manager to install it. Anything that is pycharm specific is a no-no for us. We don't know what ide our TAs are going to be using so we don't want to do anything that is locked down. PyVis works as it's not pycharm specific but just be weary of that.
 
-** Justifying changes
-- Getting rid of the view counts because 3.5 TB of data is too much, and also, it's not really that helpful --- it doesn't really matter for "connection of knowledge."
-- Why we can't do small dataset:
-  well the thing is, if we split it, it wouldn't be an issue
-  I think that 1000 is way too small to do anything meaningfull, because articles will link to other articles right? (those are the edges) That limits our stuff a lot... and we can't sort based on obscurity, because that's exactly what we're trying to show exists right?
+# ** Justifying changes
+# - Getting rid of the view counts because 3.5 TB of data is too much, and also, it's not really that helpful --- it doesn't really matter for "connection of knowledge."
+# - Why we can't do small dataset:
+#   well the thing is, if we split it, it wouldn't be an issue
+#   I think that 1000 is way too small to do anything meaningfull, because articles will link to other articles right? (those are the edges) That limits our stuff a lot... and we can't sort based on obscurity, because that's exactly what we're trying to show exists right?
 
-  like maybe we go only biographies right? But then some guys is a mathematician... oh no... now he's linking to all the stuff that he invented
+#   like maybe we go only biographies right? But then some guys is a mathematician... oh no... now he's linking to all the stuff that he invented
 
-  oh we should include that so we can do things like look at paths... oh no... someone was an english literature person. now we include that stuff and pretty soon, we have all of wikipedia
+#   oh we should include that so we can do things like look at paths... oh no... someone was an english literature person. now we include that stuff and pretty soon, we have all of wikipedia
 
-** Wikilink parser known issues
-- None at the moment
+# ** Wikilink parser known issues
+# - None at the moment
 
-** Known Short(ish) Wikipedia Articles
-- https://en.wikipedia.org/wiki/Small_article_monitor - 1124 chars, ~ 5 links, explicitly marked as a stub
-- https://en.wikipedia.org/wiki/Dermatology - about 10,000 chars, lots of headings, but fairly short, shows a message about being over focused on Western culture, so apparently Wikipedia is aware of this is a possible shortcoming, I’m not counting all of those links but there are at least 30, probably the absolute uppermost limit of what I’d consider small (and even then. debatable)
-  + related, actually short: https://en.wikipedia.org/wiki/History_of_dermatology - 1093 characters, 7 links
-- https://en.wikipedia.org/wiki/Babylonian_astronomical_diaries - 2077 characters, about 11 links
-- women in science with lacking articles:
-  + https://en.wikipedia.org/wiki/Mary_the_Jewess - 5124 chars, actually not that short
-  + interestingly, there are two guys from around same time and place and there’s actually less on them: 
-  + https://en.wikipedia.org/wiki/Pseudo-Democritus - 766 characters, 5 links (maybe 6?)
-  + https://en.wikipedia.org/wiki/Stephanus_of_Alexandria - 3736 characters, 24 links
-  + https://en.wikipedia.org/wiki/Cleopatra_the_Alchemist - 4046 characters, about 25 links
-  + https://en.wikipedia.org/wiki/Aglaonice - 4042 characters, about 29 links
-  + https://en.wikipedia.org/wiki/Master_Geng - 357 characters, 9 links
-  + https://en.wikipedia.org/wiki/Golden_Orchid_Society - 746 characters, 3 links
-- NOTE: I did this by copying the body of the article and pasting it into a google doc to check the character count — these values are approximate and may not have been calculated the same way we’re doing it
-- there do exist wikipedia pages with degree of zero, but it’s noteworthy that these are mostly new pages—we didn’t account for this in our original thinking about “disconnected knowledge”—could mention that in the report
-  + https://en.wikipedia.org/wiki/Category:All_dead-end_pages - these are not accurate, but they are all small articles
-  + “Yes there are pages without links, but usually only temporarily. Lots of new articles start without links and sometimes it can take a while before Wikipedia editors add links to them.” from https://www.quora.com/Are-there-any-Wikipedia-pages-without-links
+# ** Known Short(ish) Wikipedia Articles
+# - https://en.wikipedia.org/wiki/Small_article_monitor - 1124 chars, ~ 5 links, explicitly marked as a stub
+# - https://en.wikipedia.org/wiki/Dermatology - about 10,000 chars, lots of headings, but fairly short, shows a message about being over focused on Western culture, so apparently Wikipedia is aware of this is a possible shortcoming, I’m not counting all of those links but there are at least 30, probably the absolute uppermost limit of what I’d consider small (and even then. debatable)
+#   + related, actually short: https://en.wikipedia.org/wiki/History_of_dermatology - 1093 characters, 7 links
+# - https://en.wikipedia.org/wiki/Babylonian_astronomical_diaries - 2077 characters, about 11 links
+# - women in science with lacking articles:
+#   + https://en.wikipedia.org/wiki/Mary_the_Jewess - 5124 chars, actually not that short
+#   + interestingly, there are two guys from around same time and place and there’s actually less on them:
+#   + https://en.wikipedia.org/wiki/Pseudo-Democritus - 766 characters, 5 links (maybe 6?)
+#   + https://en.wikipedia.org/wiki/Stephanus_of_Alexandria - 3736 characters, 24 links
+#   + https://en.wikipedia.org/wiki/Cleopatra_the_Alchemist - 4046 characters, about 25 links
+#   + https://en.wikipedia.org/wiki/Aglaonice - 4042 characters, about 29 links
+#   + https://en.wikipedia.org/wiki/Master_Geng - 357 characters, 9 links
+#   + https://en.wikipedia.org/wiki/Golden_Orchid_Society - 746 characters, 3 links
+# - NOTE: I did this by copying the body of the article and pasting it into a google doc to check the character count — these values are approximate and may not have been calculated the same way we’re doing it
+# - there do exist wikipedia pages with degree of zero, but it’s noteworthy that these are mostly new pages—we didn’t account for this in our original thinking about “disconnected knowledge”—could mention that in the report
+#   + https://en.wikipedia.org/wiki/Category:All_dead-end_pages - these are not accurate, but they are all small articles
+#   + “Yes there are pages without links, but usually only temporarily. Lots of new articles start without links and sometimes it can take a while before Wikipedia editors add links to them.” from https://www.quora.com/Are-there-any-Wikipedia-pages-without-links
 
+
+# * To-do list
+# ** Dataset processing [18/18]
+# - [X] Lay out computation plan
+# - [X] File structure guidlines for consistent formatting
+# - [X] Add ~Graph~ and ~_Vertex~ implementations
+# - [X] Figure out which database we're going to use and how to use it (SQL?)
+# - [X] Figure out a file format that we will use for storing processes graphs
+# - [X] Get the partition indexes
+# - [X] Partition the dataest into smaller pieces
+# - [X] Implement wikilink parser
+# - [X] Implement wikitext count char
+# - [X] Implement wikitext get last revision
+# - [X] Implement experiment to test practical running time
+# - [X] Implement experiment to test practical difference between collect_links and wtp
+# - [X] Implement tests wikitext functions
+# - [X] Create a load_graph() function that will load a graph from that stored format
+# - [X] Actually do the processing (Test on a smaller dataset first)
+# - [X] Develop/find and program algorithm(s) to search for the vertices with the least edges
+# - [X] Implement function for getting vertices with the smallest word counts
+# - [X] Implement function(s) for looking at time since last revision
+# ** Visualization [2/2]
+# - [X] Figure out another library to use (~networkx~ is slow for large graphs)
+# - [X] Write the implementation
+# ** Analytics [2/2]
+# - [X] Develop/find and program an algorithm to search for the vertices with the least edges (and other criteria that we look for which will be decided upon later)
+# - [X] Look at pages that we know to be underrepresented and look at the trends in them, then search for those in other pages.
+# ** Project Report [8/8]
+# - [X] Introduction
+# - [X] Computational Overview (Methods)
+# - [X] Instructions
+# - [X] Analysis
+# - [X] Discussion
+# - [X] Conclusion
+# - [X] References (Just add as we go)
+# - [X] Justify changes
+
+# -----
+# -----
+
+# * Group Members
+# ** Eamon [6/6]
+# - [X] Implement wikilink parser
+# - [X] Implement wikitext count char
+# - [X] Implement wikitext get last revision
+# - [X] Implement experiment to test practical running time
+# - [X] Implement experiment to test practical difference between collect_links and wtp
+# - [X] Implement tests wikitext functions
+# ** Hisbaan [8/8]
+# - [X] Add ~Graph~ and ~_Vertex~ implementations
+# - [X] Figure out which database we're going to use and how to use it (SQL?)
+# - [X] Lay out computation plan
+# - [X] File structure guidlines for consistent formatting
+# - [X] Figure out a file format that we will use for storing processes graphs
+# - [X] Get the partition indexes
+# - [X] Partition the dataest into smaller pieces
+# - [X] Create a load_graph() function that will load a graph from that stored format
+# ** Philip [0/2]
+# - [-] Report introduction
+# - [-] Scouting new visualization library
+# ** Rachel [4/4]
+# - [X] Develop/find and program algorithm(s) to search for the vertices with the least edges
+# - [X] Implement function for getting vertices with the smallest word counts
+# - [X] Implement function(s) for looking at time since last revision
+# - [X] Look at pages that we know to be underrepresented and look at the trends in them, then search for those in other pages.
+
+# -----
+# -----
+
+# * Broad strokes overview of computational plan
+# - Split the dataset up into multiple datasets. We ensure that the division does not split up one page into two datasets.
+# - Parse each part of this dataset in parallel. For each page, we extract...
+#   + All of the edges that it possesses.
+#   + The word count of the article.
+#   + The last edit (if this is accurate).
+#   + anything else that we can pull from the xml.
+# - Merge the restuls from the parallel operations.
+# - Use this extracted information to create a graph object -- a loader method like the one that we did for graphs and weighted graphs in A3.
+# - Find some articles that we know are lacking in content/research.
+# - Find common traits of these articles. Also include custom characteristics that we are sure are present in lacking articles.
+# - Use some sort of graph searching algorithm to find all the other articles that match these characteristics.
+# - Visualize this graph:
+#   + Use some sort of clustering algorithm. Can we do anything with this? Will a node that is in a cluster be, on average, more fleshed out?
+#   + Show the graphs that are not well represented as another colour.
+#   + Maybe show statistics like the title, word count, degree, etc on hover.
+# - We're done!
