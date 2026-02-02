@@ -4,8 +4,11 @@ import wikitextparser as wtp
 from wikigraph import wikitext
 from wikigraph.experiments import versus_wtp
 
-with open('data/raw/reduced/hundredk.xml', 'r') as reader:
+with open('tests/wikitext/anarchism.txt', 'r') as reader:
     sample_wikitext = reader.read()
+
+# Extract the first page's wikitext content before the closing </text> tag.
+sample_wikitext = sample_wikitext.partition("</text>")[0]
 
 collected_links = wikitext.collect_links(sample_wikitext)
 
@@ -16,20 +19,20 @@ def test_collect_links():
     """
     # random links that should be in it
     links = [
-        "2012–13 UEFA Europa League",
-        "Propargyl alcohol",
-        "Category:American social commentators",
-        "Second French Empire",
-        "File:Banu Qurayza.png",
-        "The Great Gatsby (2013 film)",
-        "Image:Justus Sustermans - Portrait of Galileo Galilei (Uffizi).jpg",
-        "Image:Methane-2D-stereo.svg",
-        "Methane",
-        "Paraffin (disambiguation)",
-        "Tooth enamel",
-        "Chelsea, London",
-        "Category:April",
-        "microphone"
+        "political philosophy",
+        "Political movement",
+        "State (polity)",
+        "libertarian Marxism",
+        "libertarian socialism",
+        "history of anarchism",
+        "Spanish Civil War",
+        "File:WilhelmWeitling.jpg",
+        "File:Bakunin.png",
+        "Anarchist federalism",
+        "Anarchy Archives",
+        "Category:Anarchism",
+        "Category:Political ideologies",
+        "Category:Socialism"
     ]
 
     assert all(link in collected_links for link in links)
@@ -76,22 +79,35 @@ def test_parse_wikilink():
     assert parsed_links == expected_links
 
 
-with open('data/raw/reduced/animation.xml', 'r') as reader:
-    animation_page = reader.read()
+anarchism_page = (
+    "<page>\n"
+    "  <title>Anarchism</title>\n"
+    "  <revision>\n"
+    "    <timestamp>2017-06-05T04:18:18Z</timestamp>\n"
+    f"    <text xml:space=\"preserve\">{sample_wikitext}</text>\n"
+    "    <sha1>t7eab8s09kwusxrq46aqc8o2o8tvme1</sha1>\n"
+    "    </revision>\n"
+    "  </page>"
+)
 
 def test_char_count():
-    extracted = wikitext.extract_content(animation_page)
+    extracted = wikitext.extract_content(anarchism_page)
 
-    assert wikitext.char_count(animation_page) == 69345
-    assert "[[Category:Film and video technology]]" in extracted
-    assert extracted[len(extracted) -
-                     len("[[Category:Film and video technology]]"):len(extracted)] == "[[Category:Film and video technology]]"
+    assert wikitext.char_count(anarchism_page) == 96486
+    assert "[[Category:Socialism]]" in extracted
+    assert extracted.endswith("[[Category:Socialism]]")
 
 
 def test_last_revision():
     from datetime import datetime
+    timestamp = "2017-06-05T04:18:18Z"
+    # Mirror last_revision's reference date and seconds component behavior.
+    delta_seconds = (datetime.fromisoformat("2021-01-01T00:00:01+00:00").replace(tzinfo=None) -
+                     datetime.fromisoformat(
+                         timestamp.replace("Z", "+00:00")).replace(tzinfo=None)).total_seconds()
+    expected = int(delta_seconds) % (24 * 60 * 60)
     assert wikitext.last_revision(
-        animation_page) == 45100
+        anarchism_page) == expected
 
 
 if __name__ == '__main__':
